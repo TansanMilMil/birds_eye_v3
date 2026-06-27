@@ -23,7 +23,7 @@ export function MainArticle({ news, isDisplayReactions = false }: Props) {
           {news.articleImageUrl && (
             <a href={news.articleUrl} target="_blank" rel="noreferrer">
               <div className={styles.image}>
-                <img src={news.articleImageUrl} alt="" />
+                <img src={news.articleImageUrl} alt="" referrerPolicy="no-referrer" />
               </div>
             </a>
           )}

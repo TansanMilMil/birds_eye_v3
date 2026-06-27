@@ -1,15 +1,36 @@
 # Environment
 .env
 env
+*.env
 
 # Frontend
 frontend/node_modules/
 frontend/build/
+frontend/dist/
+frontend/.vite/
 
 # Backend
 backend/go/dist/
+backend/go/bin/
 backend/logs/
 nginx/log/*.log
 
+# Go
+*.exe
+*.test
+*.out
+coverage.out
+
 # Docker
 *.override.yml
+mysql/data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
