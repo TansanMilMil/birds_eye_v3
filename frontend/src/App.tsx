@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import BubbleChartIcon from "@mui/icons-material/BubbleChart";
 import { Trends } from "./pages/trends/Trends";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import styles from "./App.module.css";
 import { useSelector } from "react-redux";
@@ -43,6 +43,7 @@ export function App() {
           </h1>
 
           <Routes>
+            <Route path="/" element={<Navigate to="/news" replace />} />
             <Route path="/news" element={<TodayNews></TodayNews>} />
             <Route path="/trends" element={<Trends></Trends>} />
           </Routes>

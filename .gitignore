@@ -9,7 +9,7 @@ frontend/build/
 # Backend
 backend/go/dist/
 backend/logs/
-backend/nginx/log/*.log
+nginx/log/*.log
 
 # Docker
 *.override.yml
