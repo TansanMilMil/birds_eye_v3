@@ -8,4 +8,8 @@ else
 fi
 
 echo "----------------------------------------"
-ssh $VENUS_SSH_HOST curl -v -X POST localhost:1111/news/scrape | jq .
+if [[ "${1:-}" == "--prod" ]]; then
+    ssh $VENUS_SSH_HOST curl -v -X POST localhost:1111/news/scrape | jq .
+else
+    curl -v -X POST localhost/api/news/scrape | jq .
+fi

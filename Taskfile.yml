@@ -153,6 +153,11 @@ tasks:
     cmds:
       - ./backend/check-remote-curl.sh
 
+  scrape:
+    desc: Run scrape.sh
+    cmds:
+      - ./backend/scrape.sh
+
   clean:
     desc: Clean temporary files
     cmds:
