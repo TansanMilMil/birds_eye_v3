@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/aws"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/env"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/aws"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/env"
 )
 
 type CloudFrontInvalidator struct{}

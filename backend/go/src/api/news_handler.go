@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/cache"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/models"
-	repo "github.com/birdseyeapi/birdseyeapi_v2/go/src/repository"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/scraping"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/util/slice"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/cache"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/models"
+	repo "github.com/birdseyeapi/birds_eye_v3/go/src/repository"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/scraping"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/util/slice"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

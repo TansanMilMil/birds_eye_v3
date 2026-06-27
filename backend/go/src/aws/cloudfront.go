@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/env"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/env"
 )
 
 var (

@@ -21,7 +21,7 @@ tasks:
 
   e2e:
     desc: Run local E2E (boot all containers in PRODUCTION mode and assert health)
-    deps: [build]   # go/dist/birdseyeapi_v2 を保証 (build は test に依存)
+    deps: [build]   # go/dist/birds_eye_v3 を保証 (build は test に依存)
     cmds:
       - ./backend/scripts/e2e.sh
 
@@ -72,7 +72,7 @@ tasks:
     desc: Transfer package to remote
     deps: [package]
     vars:
-      TARGET_DIR: "{{.VENUS_HOME}}/birdseyeapi_v2"
+      TARGET_DIR: "{{.VENUS_HOME}}/birds_eye_v3"
     cmds:
       - echo "==== Transfer to remote ===="
       - |
@@ -96,7 +96,7 @@ tasks:
   stop-remote:
     desc: Stop containers on remote
     vars:
-      TARGET_DIR: "{{.VENUS_HOME}}/birdseyeapi_v2"
+      TARGET_DIR: "{{.VENUS_HOME}}/birds_eye_v3"
     cmds:
       - echo "==== Stop birdseyeapi on remote ===="
       - |
@@ -109,7 +109,7 @@ tasks:
   start-remote:
     desc: Start containers on remote
     vars:
-      TARGET_DIR: "{{.VENUS_HOME}}/birdseyeapi_v2"
+      TARGET_DIR: "{{.VENUS_HOME}}/birds_eye_v3"
     cmds:
       - echo "==== Start birdseyeapi on remote ===="
       - |
@@ -128,7 +128,7 @@ tasks:
     desc: Initialize database on remote
     deps: [start-remote]
     vars:
-      TARGET_DIR: "{{.VENUS_HOME}}/birdseyeapi_v2"
+      TARGET_DIR: "{{.VENUS_HOME}}/birds_eye_v3"
     cmds:
       - echo "==== Initialize database ===="
       - echo "Waiting for MySQL to start..."

@@ -2,7 +2,7 @@
 
 ## 概要
 
-`birds-eye-page`（FE）と `birdseyeapi_v2`（BE）を単一リポジトリに統合する。
+`birds-eye-page`（FE）と `birds_eye_v3`（BE）を単一リポジトリに統合する。
 
 ---
 
@@ -21,7 +21,7 @@ birds_eye_v3/
 │   ├── tsconfig.json
 │   ├── package.json
 │   └── Dockerfile
-├── backend/           # birdseyeapi_v2 のコード一式
+├── backend/           # birds_eye_v3 のコード一式
 │   ├── go/
 │   │   └── src/
 │   ├── nginx/
@@ -101,5 +101,5 @@ SELENIUM_URL=http://selenium:4444/wd/hub
 
 ## 移行対象外
 
-- loki / promtail / grafana（既存 birdseyeapi_v2 リポジトリで引き続き管理）
+- loki / promtail / grafana（既存 birds_eye_v3 リポジトリで引き続き管理）
 - CI/CD（GitHub Actions）は移行プランに含めず、別途検討する

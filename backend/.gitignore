@@ -5,7 +5,7 @@
 *.so
 *.dylib
 main
-birdseyeapi_v2
+birds_eye_v3
 
 # Test binary, built with `go test -c`
 *.test

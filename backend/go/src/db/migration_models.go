@@ -1,6 +1,6 @@
 package db
 
-import "github.com/birdseyeapi/birdseyeapi_v2/go/src/models"
+import "github.com/birdseyeapi/birds_eye_v3/go/src/models"
 
 func GetMigrationModels() []interface{} {
 	return []interface{}{

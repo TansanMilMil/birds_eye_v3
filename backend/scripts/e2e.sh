@@ -23,8 +23,8 @@ fi
 source .env
 
 # ビルド済みバイナリが無いと PRODUCTION モードの entrypoint が起動できない
-if [ ! -f backend/go/dist/birdseyeapi_v2 ]; then
-    echo "ERROR: backend/go/dist/birdseyeapi_v2 が見つかりません。"
+if [ ! -f backend/go/dist/birds_eye_v3 ]; then
+    echo "ERROR: backend/go/dist/birds_eye_v3 が見つかりません。"
     echo "       先に 'task build' を実行してバイナリをビルドしてください。"
     exit 1
 fi

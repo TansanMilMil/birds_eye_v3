@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/ai"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/models"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/scraping/news"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/scraping/reaction"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/ai"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/models"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/scraping/news"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/scraping/reaction"
 	"github.com/tebeka/selenium"
 )
 

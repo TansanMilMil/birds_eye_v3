@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/trend"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/trend"
 	"github.com/gin-gonic/gin"
 )
 

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/models"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

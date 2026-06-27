@@ -1,4 +1,4 @@
-module github.com/birdseyeapi/birdseyeapi_v2
+module github.com/birdseyeapi/birds_eye_v3
 
 go 1.22
 

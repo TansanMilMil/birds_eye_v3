@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/env"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/models"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/env"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/models"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/firefox"
 )

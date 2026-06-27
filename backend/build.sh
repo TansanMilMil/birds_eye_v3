@@ -3,7 +3,7 @@
 cd `dirname $0`
 BASE_DIR="go"
 DIST_DIR="$BASE_DIR/dist"
-BIN_PATH="$DIST_DIR/birdseyeapi_v2"
+BIN_PATH="$DIST_DIR/birds_eye_v3"
 GO_FILE="$BASE_DIR/src/main.go"
 
 

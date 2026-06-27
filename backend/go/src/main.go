@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	api "github.com/birdseyeapi/birdseyeapi_v2/go/src/api"
-	"github.com/birdseyeapi/birdseyeapi_v2/go/src/db"
+	api "github.com/birdseyeapi/birds_eye_v3/go/src/api"
+	"github.com/birdseyeapi/birds_eye_v3/go/src/db"
 )
 
 func main() {

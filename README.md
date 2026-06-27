@@ -172,7 +172,7 @@ docker compose logs -f
 ```bash
 cd backend
 ./build.sh
-# → go/dist/birdseyeapi_v2 が生成される
+# → go/dist/birds_eye_v3 が生成される
 docker compose restart go
 ```
 
