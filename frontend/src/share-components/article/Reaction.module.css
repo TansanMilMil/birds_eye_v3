@@ -1,0 +1,38 @@
+.author {
+  color: #939393;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  margin: 0.3rem 0;
+}
+
+.author a:link {
+  text-decoration: none;
+}
+
+.author a:hover {
+  text-decoration: underline;
+}
+
+.author a:visited {
+  color: #aaa;
+}
+
+.comment {
+  color: #242424;
+  padding: 0.3rem;
+  word-break: break-word;
+  font-size: 0.9rem;
+}
+
+.reactionArea {
+  background-color: #f7f7f7;
+  margin: 0.3rem 0;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.4rem;
+}
+
+.scrapedDateTime {
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}

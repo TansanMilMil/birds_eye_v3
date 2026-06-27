@@ -1,0 +1,15 @@
+# Environment
+.env
+env
+
+# Frontend
+frontend/node_modules/
+frontend/build/
+
+# Backend
+backend/go/dist/
+backend/logs/
+backend/nginx/log/*.log
+
+# Docker
+*.override.yml

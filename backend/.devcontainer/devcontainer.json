@@ -1,0 +1,75 @@
+{
+  "name": "BirdseyeAPI v2 Dev Environment",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "ms-vscode.vscode-docker",
+        "ms-vscode.makefile-tools",
+        "task.vscode-task",
+        "github.vscode-github-actions",
+        "mhutchie.git-graph"
+      ],
+      "settings": {
+        "go.toolsManagement.checkForUpdates": "local",
+        "go.useLanguageServer": true,
+        "go.gopath": "/go",
+        "go.goroot": "/usr/local/go",
+        "editor.formatOnSave": true,
+        "[go]": {
+          "editor.insertSpaces": false,
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        }
+      }
+    }
+  },
+
+  "forwardPorts": [8080, 1111, 3307, 4444, 3000],
+  "portsAttributes": {
+    "8080": { "label": "Go API Server" },
+    "1111": { "label": "Dev Server" },
+    "3307": { "label": "MySQL" },
+    "4444": { "label": "Debug" },
+    "3000": { "label": "Frontend" }
+  },
+
+  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+
+  "remoteEnv": {
+    "BIRDSEYEAPI_V2_OPENAI_API_KEY": "${localEnv:BIRDSEYEAPI_V2_OPENAI_API_KEY}",
+    "BIRDSEYEAPI_V2_CLAUDE_API_KEY": "${localEnv:BIRDSEYEAPI_V2_CLAUDE_API_KEY}",
+    "BIRDSEYEAPI_V2_AWS_ACCESS_KEY_ID": "${localEnv:BIRDSEYEAPI_V2_AWS_ACCESS_KEY_ID}",
+    "BIRDSEYEAPI_V2_AWS_SECRET_ACCESS_KEY": "${localEnv:BIRDSEYEAPI_V2_AWS_SECRET_ACCESS_KEY}"
+  },
+
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.npmrc,target=/home/vscode/.npmrc,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.vimrc,target=/home/vscode/.vimrc,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+  ],
+
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspaces/birdseyeapi_v2"
+}

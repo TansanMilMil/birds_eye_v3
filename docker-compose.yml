@@ -1,0 +1,133 @@
+services:
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: birds_eye_frontend
+    mem_limit: 512m
+    volumes:
+      - ./frontend:/project
+      - /project/node_modules
+      - frontend-build:/project/build
+    environment:
+      VITE_BIRDS_EYE_API_ENDPOINT: "${VITE_BIRDS_EYE_API_ENDPOINT}"
+    restart: unless-stopped
+    tty: true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nginx:
+    image: nginx:1.31.2
+    container_name: birds_eye_nginx
+    mem_limit: 64m
+    volumes:
+      - ./backend/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./backend/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./backend/nginx/log:/var/log/nginx
+      - frontend-build:/var/www/html:ro
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 80:80
+    depends_on:
+      - go
+      - frontend
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      logging: "promtail"
+      app_name: "nginx"
+
+  go:
+    image: golang:1.24
+    container_name: birds_eye_go
+    ports:
+      - 8080:8080
+    tty: true
+    mem_limit: 512m
+    volumes:
+      - ./backend:/project
+    restart: unless-stopped
+    working_dir: /project
+    environment:
+      SELENIUM_URL: "${SELENIUM_URL}"
+      BIRDSEYEAPI_EXECUTION_MODE: "${BIRDSEYEAPI_EXECUTION_MODE}"
+      BIRDSEYEAPI_V2_OPENAI_API_KEY: "${BIRDSEYEAPI_V2_OPENAI_API_KEY}"
+      BIRDSEYEAPI_V2_CLAUDE_API_KEY: "${BIRDSEYEAPI_V2_CLAUDE_API_KEY}"
+      GO_API_PORT: "${GO_API_PORT}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID: "${AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID}"
+      AWS_REGION: "${AWS_REGION}"
+      OPENAI_MODEL: "${OPENAI_MODEL}"
+      OPENAI_CHAT_ENDPOINT: "${OPENAI_CHAT_ENDPOINT}"
+      SCRAPING_ARTICLES: "${SCRAPING_ARTICLES}"
+    entrypoint: ./go-entrypoint.sh
+    depends_on:
+      mysql:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      logging: "promtail"
+      app_name: "go"
+
+  mysql:
+    image: mysql:9.3
+    container_name: birds_eye_mysql
+    command: --innodb-buffer-pool-size=256M
+    mem_limit: 1g
+    volumes:
+      - db-store:/var/lib/mysql
+      - ./backend/mysql/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    ports:
+      - 3307:3306
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      logging: "promtail"
+      app_name: "mysql"
+
+  selenium:
+    image: selenium/standalone-firefox:133.0
+    container_name: birds_eye_selenium
+    ports:
+      - 4444:4444
+    shm_size: 512m
+    mem_limit: 1g
+    environment:
+      SE_NODE_MAX_SESSIONS: "1"
+      SE_NODE_SESSION_TIMEOUT: "120"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      logging: "promtail"
+      app_name: "selenium"
+
+volumes:
+  db-store:
+  frontend-build:
