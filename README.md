@@ -190,7 +190,7 @@ cd backend
 
 | メソッド | パス | 説明 |
 |---|---|---|
-| GET | `/api/news/today-news` | 本日のニュース一覧（最大 10 日前まで遡及） |
+| GET | `/api/news/:target_date` | 指定日付（YYYY-MM-DD）のニュース一覧 |
 | GET | `/api/news/news-reactions/:news-id` | 指定記事の Hatena Bookmark 反応 |
 | POST | `/api/news/scrape` | ニュース・反応のスクレイプ実行（多重実行は 409） |
 | GET | `/api/news/trends` | Google Trends のトレンドワード |

@@ -30,7 +30,7 @@ tasks:
     cmds:
       - echo "==== Docker compose setup ===="
       - docker compose down
-      - docker compose -f ./backend/docker-compose.ci.yml up -d go
+      - docker compose up -d go
       - echo "==== Run all tests ===="
       - docker compose exec go ./test.sh
       - docker compose down
@@ -41,7 +41,7 @@ tasks:
     cmds:
       - echo "==== Docker compose setup ===="
       - docker compose down
-      - docker compose -f ./backend/docker-compose.ci.yml up -d go
+      - docker compose up -d go
       - echo "==== Build ===="
       - docker compose exec go ./build.sh
       - echo "==== Docker compose teardown ===="
@@ -56,7 +56,7 @@ tasks:
       - mkdir -p ./backend/deploy-temp
       - mkdir -p ./backend/deploy-temp/go
       - cp -r ./backend/go/dist ./backend/deploy-temp/go
-      - cp ./backend/docker-compose.yml ./backend/deploy-temp/
+      - cp ./docker-compose.yml ./backend/deploy-temp/
       - cp ./backend/go-entrypoint.sh ./backend/deploy-temp/
       - cp ./backend/init_db.sh ./backend/deploy-temp/
       - cp -r ./nginx ./backend/deploy-temp/

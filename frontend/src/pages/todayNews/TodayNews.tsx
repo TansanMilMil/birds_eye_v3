@@ -14,7 +14,13 @@ export function TodayNews() {
   useEffect(() => {
     if (newsList.length === 0) {
       setIsLoading(true);
-      BirdsEyeApi.getTodayNews()
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      const targetDate = `${year}-${month}-${day}`;
+
+      BirdsEyeApi.getTodayNews(targetDate)
         .then((result) => {
           const newsList: News[] = result.news.map((news) => {
             news.scrapedDateTime = new Date(

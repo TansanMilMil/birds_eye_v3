@@ -11,7 +11,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 
 	newsRoutes := r.Group("/news")
 	{
-		newsRoutes.GET("/today-news", newsHandler.GetAllNews)
+		newsRoutes.GET("/:target_date", newsHandler.GetNewsByDate)
 		newsRoutes.GET("/news-reactions/:news-id", newsHandler.GetNewsReactionsById)
 		newsRoutes.POST("/scrape", newsHandler.Scrape)
 

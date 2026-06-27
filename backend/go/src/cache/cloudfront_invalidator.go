@@ -11,9 +11,7 @@ func (c *CloudFrontInvalidator) Invalidate() bool {
 	err := aws.CreateInvalidation(
 		env.GetEnv("AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID", ""),
 		[]string{
-			"/news/today-news",
-			"/news/news-reactions/*",
-			"/news/trends",
+			"/news/*",
 		})
 	if err != nil {
 		println("Error creating CloudFront invalidation:", err.Error())

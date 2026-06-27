@@ -9,8 +9,8 @@ import {
 export class BirdsEyeApi {
   private static readonly API_ENDPOINT: string = Env.BirdsEyeApiEndpoint();
 
-  public static async getTodayNews(): Promise<GetTodayNewsResponse> {
-    const res = await axios.get(`${this.API_ENDPOINT}/news/today-news`);
+  public static async getTodayNews(targetDate: string): Promise<GetTodayNewsResponse> {
+    const res = await axios.get(`${this.API_ENDPOINT}/news/${targetDate}`);
     return res.data;
   }
 

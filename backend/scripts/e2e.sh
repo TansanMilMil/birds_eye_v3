@@ -13,7 +13,7 @@
 
 # --- 準備 -------------------------------------------------------------------
 # リポジトリルート (このスクリプトの一つ上) へ移動
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 echo "load .env ----------------------------"
 if [ ! -f .env ]; then
@@ -23,14 +23,14 @@ fi
 source .env
 
 # ビルド済みバイナリが無いと PRODUCTION モードの entrypoint が起動できない
-if [ ! -f go/dist/birdseyeapi_v2 ]; then
-    echo "ERROR: go/dist/birdseyeapi_v2 が見つかりません。"
+if [ ! -f backend/go/dist/birdseyeapi_v2 ]; then
+    echo "ERROR: backend/go/dist/birdseyeapi_v2 が見つかりません。"
     echo "       先に 'task build' を実行してバイナリをビルドしてください。"
     exit 1
 fi
 
-# 期待サービス (7つ)
-EXPECTED_SERVICES="selenium go nginx mysql loki promtail grafana"
+# 期待サービス (4つ)
+EXPECTED_SERVICES="frontend selenium go nginx"
 
 # --- ログダンプ (失敗時の調査用) --------------------------------------------
 dump_logs() {
@@ -130,11 +130,13 @@ poll_http() {
 
 wait_http() {
     # nginx 疎通: /HealthCheck が 'ok' を返すまで
-    poll_http "localhost:1111/HealthCheck" "nginx /HealthCheck" "grep -q '^ok$'"
+    poll_http "localhost:80/HealthCheck" "nginx /HealthCheck" "grep -q '^ok$'"
 
-    # go+DB 疎通 (本命): /news/today-news が HTTP 200 を返せば
+    # go+DB 疎通 (本命): /news/{target_date} が HTTP 200 を返せば
     # 「go 起動済み + MySQL 接続成功 + GORM AutoMigrate 成功」が同時に保証される
-    poll_http "localhost:1111/news/today-news" "go+DB /news/today-news"
+    local today
+    today=$(date +%Y-%m-%d)
+    poll_http "localhost:80/news/${today}" "go+DB /news/${today}"
 }
 
 # --- 致命ログの assert (致命のみ) -------------------------------------------
@@ -157,13 +159,10 @@ assert_no_fatal_logs() {
     assert_no_pattern go 'panic:|Fatal|Failed to connect to database|Failed to start server'
     # nginx: 致命寄りの emerg / alert
     assert_no_pattern nginx '\[emerg\]|\[alert\]'
-    # mysql: ERROR は致命寄り
-    assert_no_pattern mysql '\[ERROR\]'
+    # frontend: panic / fatal
+    assert_no_pattern frontend 'panic|fatal'
     # その他: panic / fatal のみ (無害な error/warn は対象外)
     assert_no_pattern selenium 'panic|fatal'
-    assert_no_pattern loki 'panic|fatal'
-    assert_no_pattern promtail 'panic|fatal'
-    assert_no_pattern grafana 'panic|fatal'
 }
 
 # --- 起動 -------------------------------------------------------------------

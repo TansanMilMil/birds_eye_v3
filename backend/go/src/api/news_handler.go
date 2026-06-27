@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -38,13 +37,21 @@ func NewNewsHandler(db *gorm.DB) *NewsHandler {
 	}
 }
 
-func (h *NewsHandler) GetAllNews(c *gin.Context) {
-	news, err := h.SearchNewsWithBackoff(10, c)
+func (h *NewsHandler) GetNewsByDate(c *gin.Context) {
+	targetDateStr := c.Param("target_date")
+	targetDate, err := time.Parse("2006-01-02", targetDateStr)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid target_date format, expected YYYY-MM-DD",
 		})
 		return
+	}
+
+	news := h.newsRepo.GetNews(targetDate, c)
+	if news == nil {
+		if c.Writer.Written() {
+			return
+		}
 	}
 
 	slice.Shuffle(news)
@@ -53,25 +60,6 @@ func (h *NewsHandler) GetAllNews(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"news": newsResponses,
 	})
-}
-
-func (h *NewsHandler) SearchNewsWithBackoff(backoffDays int, c *gin.Context) ([]models.News, error) {
-	if backoffDays < 0 {
-		return nil, fmt.Errorf("backoffDays must be non-negative")
-	}
-
-	date := time.Now()
-	news := h.newsRepo.GetNews(date, c)
-
-	for i := 0; i < backoffDays; i++ {
-		date = date.AddDate(0, 0, -1)
-		news = h.newsRepo.GetNews(date, c)
-		if len(news) >= 1 {
-			break
-		}
-	}
-
-	return news, nil
 }
 
 func (h *NewsHandler) GetNewsReactionsById(c *gin.Context) {
