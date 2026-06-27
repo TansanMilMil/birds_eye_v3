@@ -53,6 +53,7 @@ services:
     mem_limit: 512m
     volumes:
       - ./backend:/project
+      - db-store:/data
     restart: unless-stopped
     working_dir: /project
     environment:
@@ -61,16 +62,12 @@ services:
       BIRDSEYEAPI_V2_OPENAI_API_KEY: "${BIRDSEYEAPI_V2_OPENAI_API_KEY}"
       BIRDSEYEAPI_V2_CLAUDE_API_KEY: "${BIRDSEYEAPI_V2_CLAUDE_API_KEY}"
       GO_API_PORT: "${GO_API_PORT}"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID: "${AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID}"
       AWS_REGION: "${AWS_REGION}"
       OPENAI_MODEL: "${OPENAI_MODEL}"
       OPENAI_CHAT_ENDPOINT: "${OPENAI_CHAT_ENDPOINT}"
       SCRAPING_ARTICLES: "${SCRAPING_ARTICLES}"
     entrypoint: ./go-entrypoint.sh
-    depends_on:
-      mysql:
-        condition: service_healthy
     logging:
       driver: json-file
       options:
@@ -79,34 +76,6 @@ services:
     labels:
       logging: "promtail"
       app_name: "go"
-
-  mysql:
-    image: mysql:9.3
-    container_name: birds_eye_mysql
-    command: --innodb-buffer-pool-size=256M
-    mem_limit: 1g
-    volumes:
-      - db-store:/var/lib/mysql
-      - ./mysql/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql:ro
-    environment:
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-    ports:
-      - 3307:3306
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    labels:
-      logging: "promtail"
-      app_name: "mysql"
 
   selenium:
     image: selenium/standalone-firefox:133.0

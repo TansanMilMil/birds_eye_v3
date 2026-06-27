@@ -8,9 +8,4 @@ else
 fi
 docker compose up -d
 
-MYSQL="docker compose exec -T mysql mysql -u root -p$MYSQL_ROOT_PASSWORD"
-$MYSQL < mysql/create_db.sql
-#$MYSQL show databases
-
-echo 'init db completed!'
-
+echo 'init completed!'

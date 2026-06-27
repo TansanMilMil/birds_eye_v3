@@ -1,6 +1,6 @@
 version: "3"
 
-dotenv: ["backend/.env"]
+dotenv: [".env"]
 
 tasks:
   default:
