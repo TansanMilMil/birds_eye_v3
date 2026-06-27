@@ -54,6 +54,8 @@ services:
     volumes:
       - ./backend:/project
       - db-store:/data
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
     restart: unless-stopped
     working_dir: /project
     environment:
@@ -100,3 +102,5 @@ services:
 volumes:
   db-store:
   frontend-build:
+  go-mod-cache:
+  go-build-cache:
