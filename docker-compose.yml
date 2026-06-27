@@ -9,8 +9,6 @@ services:
       - ./frontend:/project
       - /project/node_modules
       - frontend-build:/project/build
-    environment:
-      BIRDSEYE_VITE_BIRDS_EYE_API_ENDPOINT: "${BIRDSEYE_VITE_BIRDS_EYE_API_ENDPOINT}"
     restart: unless-stopped
     tty: true
     logging:

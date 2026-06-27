@@ -5,7 +5,6 @@ directory = '/home/ubuntu/develop/birds_eye_v3'
 directories_to_ignore = {'.git', 'node_modules', 'vendor', 'dist', 'build'}
 
 replacements = {
-    'VITE_BIRDS_EYE_API_ENDPOINT': 'BIRDSEYE_VITE_BIRDS_EYE_API_ENDPOINT',
     'MYSQL_ROOT_PASSWORD': 'BIRDSEYE_MYSQL_ROOT_PASSWORD',
     'GO_API_PORT': 'BIRDSEYE_GO_API_PORT',
     'BIRDSEYEAPI_EXECUTION_MODE': 'BIRDSEYE_BIRDSEYEAPI_EXECUTION_MODE',
