@@ -35,7 +35,7 @@ IT ニュースを自動収集・AI 要約して閲覧できる Web アプリ。
 │  │           Docker Compose             │   │
 │  │                                      │   │
 │  │  ┌────────────┐                      │   │
-│  │  │   Nginx    │ :80                  │   │
+│  │  │   Nginx    │ :8082                │   │
 │  │  │            │                      │   │
 │  │  │  /         │──→ frontend-build    │   │
 │  │  │  /api/     │──→ go:8080           │   │
@@ -80,7 +80,7 @@ POST /api/news/scrape → Go → Selenium(Firefox) → 各ニュースサイト
 
 | サービス | イメージ | ホストポート | 役割 |
 |---|---|---|---|
-| nginx | nginx:1.31.2 | 80 | リバースプロキシ・静的ファイル配信 |
+| nginx | nginx:1.31.2 | 8082 | リバースプロキシ・静的ファイル配信 |
 | go | golang:1.24 | 8080 | Gin API サーバー |
 | mysql | mysql:9.3 | 3307 | データ永続化 |
 | selenium | selenium/standalone-firefox:133.0 | 4444 | ヘッドレス Firefox（スクレイピング用） |
@@ -144,7 +144,7 @@ docker compose up -d
 docker compose logs -f
 ```
 
-起動後、`http://localhost` でアクセスできる。
+起動後、`http://localhost:8082` でアクセスできる。
 
 ---
 

@@ -54,9 +54,9 @@
     }
   },
 
-  "forwardPorts": [80, 8080, 3307, 4444],
+  "forwardPorts": [8082, 8080, 3307, 4444],
   "portsAttributes": {
-    "80":   { "label": "Nginx (App)", "onAutoForward": "notify" },
+    "8082": { "label": "Nginx (App)", "onAutoForward": "notify" },
     "8080": { "label": "Go API Server" },
     "3307": { "label": "MySQL" },
     "4444": { "label": "Selenium" }

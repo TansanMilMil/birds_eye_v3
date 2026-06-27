@@ -130,13 +130,13 @@ poll_http() {
 
 wait_http() {
     # nginx 疎通: /HealthCheck が 'ok' を返すまで
-    poll_http "localhost:80/HealthCheck" "nginx /HealthCheck" "grep -q '^ok$'"
+    poll_http "localhost:8082/HealthCheck" "nginx /HealthCheck" "grep -q '^ok$'"
 
     # go+DB 疎通 (本命): /news/{target_date} が HTTP 200 を返せば
     # 「go 起動済み + MySQL 接続成功 + GORM AutoMigrate 成功」が同時に保証される
     local today
     today=$(date +%Y-%m-%d)
-    poll_http "localhost:80/news/${today}" "go+DB /news/${today}"
+    poll_http "localhost:8082/news/${today}" "go+DB /news/${today}"
 }
 
 # --- 致命ログの assert (致命のみ) -------------------------------------------
