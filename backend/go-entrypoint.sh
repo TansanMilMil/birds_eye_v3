@@ -2,7 +2,7 @@
 
 cd `dirname $0`
 
-if [ $BIRDSEYEAPI_EXECUTION_MODE = 'PRODUCTION' ] ; then
+if [ $BIRDSEYE_BIRDSEYEAPI_EXECUTION_MODE = 'PRODUCTION' ] ; then
     echo 'running PRODUCTION mode...'
     ./go/dist/birds_eye_v3
 else 

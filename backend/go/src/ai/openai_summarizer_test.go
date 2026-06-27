@@ -7,40 +7,40 @@ import (
 
 func TestNewOpenAISummarizer(t *testing.T) {
 	// 環境変数を保存
-	originalAPIKey := os.Getenv("BIRDSEYEAPI_V2_OPENAI_API_KEY")
+	originalAPIKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY")
 	defer func() {
-		os.Setenv("BIRDSEYEAPI_V2_OPENAI_API_KEY", originalAPIKey)
+		os.Setenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY", originalAPIKey)
 	}()
 
 	t.Run("環境変数が設定されている場合", func(t *testing.T) {
-		os.Setenv("BIRDSEYEAPI_V2_OPENAI_API_KEY", "test-api-key")
+		os.Setenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY", "test-api-key")
 
 		summarizer := NewOpenAISummarizer()
 
 		if summarizer.apiKey != "test-api-key" {
 			t.Errorf("Expected apiKey to be 'test-api-key', got '%s'", summarizer.apiKey)
 		}
-		if summarizer.baseURL != OPENAI_CHAT_ENDPOINT {
-			t.Errorf("Expected baseURL to be '%s', got '%s'", OPENAI_CHAT_ENDPOINT, summarizer.baseURL)
+		if summarizer.baseURL != BIRDSEYE_OPENAI_CHAT_ENDPOINT {
+			t.Errorf("Expected baseURL to be '%s', got '%s'", BIRDSEYE_OPENAI_CHAT_ENDPOINT, summarizer.baseURL)
 		}
-		if summarizer.openAIModel != OPENAI_MODEL {
-			t.Errorf("Expected openAIModel to be '%s', got '%s'", OPENAI_MODEL, summarizer.openAIModel)
+		if summarizer.openAIModel != BIRDSEYE_OPENAI_MODEL {
+			t.Errorf("Expected openAIModel to be '%s', got '%s'", BIRDSEYE_OPENAI_MODEL, summarizer.openAIModel)
 		}
 	})
 
 	t.Run("環境変数が設定されていない場合", func(t *testing.T) {
-		os.Unsetenv("BIRDSEYEAPI_V2_OPENAI_API_KEY")
+		os.Unsetenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY")
 
 		summarizer := NewOpenAISummarizer()
 
 		if summarizer.apiKey != "" {
 			t.Errorf("Expected apiKey to be empty, got '%s'", summarizer.apiKey)
 		}
-		if summarizer.baseURL != OPENAI_CHAT_ENDPOINT {
-			t.Errorf("Expected baseURL to be '%s', got '%s'", OPENAI_CHAT_ENDPOINT, summarizer.baseURL)
+		if summarizer.baseURL != BIRDSEYE_OPENAI_CHAT_ENDPOINT {
+			t.Errorf("Expected baseURL to be '%s', got '%s'", BIRDSEYE_OPENAI_CHAT_ENDPOINT, summarizer.baseURL)
 		}
-		if summarizer.openAIModel != OPENAI_MODEL {
-			t.Errorf("Expected openAIModel to be '%s', got '%s'", OPENAI_MODEL, summarizer.openAIModel)
+		if summarizer.openAIModel != BIRDSEYE_OPENAI_MODEL {
+			t.Errorf("Expected openAIModel to be '%s', got '%s'", BIRDSEYE_OPENAI_MODEL, summarizer.openAIModel)
 		}
 	})
 }
@@ -62,13 +62,13 @@ func TestOpenAISummarizer_Summarize_NoAPIKey(t *testing.T) {
 }
 
 // インテグレーションテスト: 実際のOpenAI APIを呼び出す
-// 環境変数 BIRDSEYEAPI_V2_OPENAI_API_KEY が設定されている場合のみ実行される
+// 環境変数 BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY が設定されている場合のみ実行される
 func TestOpenAISummarizer_Integration(t *testing.T) {
 	t.Skip("Skipping integration test: not ready for execution") // 一時的にスキップ
 
-	apiKey := os.Getenv("BIRDSEYEAPI_V2_OPENAI_API_KEY")
+	apiKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY")
 	if apiKey == "" {
-		t.Skip("Skipping integration test: BIRDSEYEAPI_V2_OPENAI_API_KEY not set")
+		t.Skip("Skipping integration test: BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY not set")
 	}
 
 	summarizer := NewOpenAISummarizer()

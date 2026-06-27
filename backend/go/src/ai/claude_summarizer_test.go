@@ -7,13 +7,13 @@ import (
 
 func TestNewClaudeSummarizer(t *testing.T) {
 	// 環境変数を保存
-	originalAPIKey := os.Getenv("BIRDSEYEAPI_V2_CLAUDE_API_KEY")
+	originalAPIKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY")
 	defer func() {
-		os.Setenv("BIRDSEYEAPI_V2_CLAUDE_API_KEY", originalAPIKey)
+		os.Setenv("BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY", originalAPIKey)
 	}()
 
 	t.Run("環境変数が設定されている場合", func(t *testing.T) {
-		os.Setenv("BIRDSEYEAPI_V2_CLAUDE_API_KEY", "test-api-key")
+		os.Setenv("BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY", "test-api-key")
 
 		summarizer := NewClaudeSummarizer()
 
@@ -26,7 +26,7 @@ func TestNewClaudeSummarizer(t *testing.T) {
 	})
 
 	t.Run("環境変数が設定されていない場合", func(t *testing.T) {
-		os.Unsetenv("BIRDSEYEAPI_V2_CLAUDE_API_KEY")
+		os.Unsetenv("BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY")
 
 		summarizer := NewClaudeSummarizer()
 
@@ -60,13 +60,13 @@ func TestClaudeSummarizer_Summarize_NoAPIKey(t *testing.T) {
 }
 
 // インテグレーションテスト: 実際のClaude APIを呼び出す
-// 環境変数 BIRDSEYEAPI_V2_CLAUDE_API_KEY が設定されている場合のみ実行される
+// 環境変数 BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY が設定されている場合のみ実行される
 func TestClaudeSummarizer_Integration(t *testing.T) {
 	t.Skip("Skipping integration test: not ready for execution") // 一時的にスキップ
 
-	apiKey := os.Getenv("BIRDSEYEAPI_V2_CLAUDE_API_KEY")
+	apiKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY")
 	if apiKey == "" {
-		t.Skip("Skipping integration test: BIRDSEYEAPI_V2_CLAUDE_API_KEY not set")
+		t.Skip("Skipping integration test: BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY not set")
 	}
 
 	summarizer := NewClaudeSummarizer()

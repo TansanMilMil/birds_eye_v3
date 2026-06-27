@@ -9,8 +9,8 @@ import (
 	"os"
 )
 
-const OPENAI_CHAT_ENDPOINT = "https://api.openai.com/v1/chat/completions"
-const OPENAI_MODEL = "gpt-4.1-mini"
+const BIRDSEYE_OPENAI_CHAT_ENDPOINT = "https://api.openai.com/v1/chat/completions"
+const BIRDSEYE_OPENAI_MODEL = "gpt-4.1-mini"
 
 type OpenAISummarizer struct {
 	apiKey      string
@@ -37,9 +37,9 @@ type OpenAIResponse struct {
 }
 
 func NewOpenAISummarizer() *OpenAISummarizer {
-	apiKey := os.Getenv("BIRDSEYEAPI_V2_OPENAI_API_KEY")
-	baseURL := OPENAI_CHAT_ENDPOINT
-	openAIModel := OPENAI_MODEL
+	apiKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY")
+	baseURL := BIRDSEYE_OPENAI_CHAT_ENDPOINT
+	openAIModel := BIRDSEYE_OPENAI_MODEL
 
 	return &OpenAISummarizer{
 		apiKey:      apiKey,

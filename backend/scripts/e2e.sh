@@ -171,7 +171,7 @@ echo "==== boot: clean start in PRODUCTION mode ===="
 # クリーンに開始
 docker compose down
 # .env ファイル自体は書き換えず、環境変数のインライン上書きで PRODUCTION を強制
-BIRDSEYEAPI_EXECUTION_MODE=PRODUCTION docker compose up -d
+BIRDSEYE_BIRDSEYEAPI_EXECUTION_MODE=PRODUCTION docker compose up -d
 
 # --- 各 assert 実行 ---------------------------------------------------------
 assert_all_running

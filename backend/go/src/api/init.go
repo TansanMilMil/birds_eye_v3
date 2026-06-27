@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var port = os.Getenv("GO_API_PORT")
+var port = os.Getenv("BIRDSEYE_GO_API_PORT")
 
 func Init(db *gorm.DB) {
 	r := gin.Default()

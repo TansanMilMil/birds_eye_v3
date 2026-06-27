@@ -154,14 +154,14 @@ docker compose logs -f
 
 | 変数名 | 説明 |
 |---|---|
-| `MYSQL_ROOT_PASSWORD` | MySQL root パスワード |
-| `BIRDSEYEAPI_V2_OPENAI_API_KEY` | OpenAI API キー（要約用） |
-| `BIRDSEYEAPI_V2_CLAUDE_API_KEY` | Claude API キー（要約用） |
-| `AWS_REGION` | AWS リージョン |
-| `AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID` | CloudFront ディストリビューション ID |
-| `BIRDSEYEAPI_EXECUTION_MODE` | `PRODUCTION` で本番バイナリを実行、それ以外は開発シェル |
-| `VITE_BIRDS_EYE_API_ENDPOINT` | フロントエンドから叩く API エンドポイント URL |
-| `SCRAPING_ARTICLES` | スクレイプする記事数（デフォルト 10） |
+| `BIRDSEYE_MYSQL_ROOT_PASSWORD` | MySQL root パスワード |
+| `BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY` | OpenAI API キー（要約用） |
+| `BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY` | Claude API キー（要約用） |
+| `BIRDSEYE_AWS_REGION` | AWS リージョン |
+| `BIRDSEYE_AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID` | CloudFront ディストリビューション ID |
+| `BIRDSEYE_BIRDSEYEAPI_EXECUTION_MODE` | `PRODUCTION` で本番バイナリを実行、それ以外は開発シェル |
+| `BIRDSEYE_VITE_BIRDS_EYE_API_ENDPOINT` | フロントエンドから叩く API エンドポイント URL |
+| `BIRDSEYE_SCRAPING_ARTICLES` | スクレイプする記事数（デフォルト 10） |
 
 ---
 

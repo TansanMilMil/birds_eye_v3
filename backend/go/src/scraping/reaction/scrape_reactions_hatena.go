@@ -23,7 +23,7 @@ const (
 	implicitWait = 5 * time.Second
 )
 
-var SeleniumUrl = env.GetEnv("SELENIUM_URL", "")
+var SeleniumUrl = env.GetEnv("BIRDSEYE_SELENIUM_URL", "")
 
 // NewFirefoxDriver creates a single remote Firefox session with headless mode
 // and timeouts configured. The caller owns the returned driver's lifecycle and

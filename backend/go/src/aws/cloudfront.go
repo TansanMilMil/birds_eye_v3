@@ -13,13 +13,13 @@ import (
 )
 
 var (
-	AWSRegion = env.GetEnv("AWS_REGION", "")
+	AWSRegion = env.GetEnv("BIRDSEYE_AWS_REGION", "")
 )
 
 // CreateInvalidation creates a CloudFront invalidation for the specified paths
 func CreateInvalidation(distributionID string, paths []string) error {
 	if distributionID == "" {
-		return fmt.Errorf("AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID environment variable not set")
+		return fmt.Errorf("BIRDSEYE_AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID environment variable not set")
 	}
 	// Create AWS session
 	cfg, err := config.LoadDefaultConfig(context.TODO(),

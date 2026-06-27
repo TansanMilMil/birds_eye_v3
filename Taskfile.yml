@@ -21,7 +21,7 @@ tasks:
 
   e2e:
     desc: Run local E2E (boot all containers in PRODUCTION mode and assert health)
-    deps: [build]   # go/dist/birds_eye_v3 を保証 (build は test に依存)
+    deps: [build] # go/dist/birds_eye_v3 を保証 (build は test に依存)
     cmds:
       - ./backend/scripts/e2e.sh
 
@@ -47,23 +47,26 @@ tasks:
       - echo "==== Docker compose teardown ===="
       - docker compose down
 
+  build-frontend:
+    desc: Build frontend locally
+    cmds:
+      - echo "==== Build frontend ===="
+      - cd frontend && npm install && npm run build
+
   package:
     desc: Create deployment package
-    deps: [build]
+    deps: [build, build-frontend]
     cmds:
       - echo "==== Create deploy package ===="
       - rm -rf ./backend/deploy-temp
       - mkdir -p ./backend/deploy-temp
-      - mkdir -p ./backend/deploy-temp/go
-      - cp -r ./backend/go/dist ./backend/deploy-temp/go
-      - cp ./docker-compose.yml ./backend/deploy-temp/
-      - cp ./backend/go-entrypoint.sh ./backend/deploy-temp/
-      - cp ./backend/init_db.sh ./backend/deploy-temp/
-      - cp -r ./nginx ./backend/deploy-temp/
-      - cp -r ./mysql ./backend/deploy-temp/
-      - cp -r ./backend/loki ./backend/deploy-temp/
-      - cp -r ./backend/promtail ./backend/deploy-temp/
-      - cp -r ./backend/grafana ./backend/deploy-temp/
+      - mkdir -p ./backend/deploy-temp/backend/go
+      - rsync -a --ignore-missing-args ./backend/go/dist ./backend/deploy-temp/backend/go/
+      - rsync -a --ignore-missing-args ./docker-compose.prod.yml ./backend/deploy-temp/docker-compose.yml
+      - rsync -a --ignore-missing-args ./frontend/dist ./backend/deploy-temp/frontend/
+      - rsync -a --ignore-missing-args ./.env ./backend/deploy-temp/ || true
+      - rsync -a --ignore-missing-args ./backend/init_db.sh ./backend/deploy-temp/
+      - rsync -a --ignore-missing-args ./nginx ./backend/deploy-temp/
       - tar czf ./backend/deploy.tgz -C ./backend/deploy-temp .
       - rm -rf ./backend/deploy-temp
       - echo "Package created deploy.tgz"
@@ -104,7 +107,7 @@ tasks:
           echo "Error: VENUS_SSH_HOST is not set. Please check .env file."
           exit 1
         fi
-      - ssh {{.VENUS_SSH_HOST}} docker compose -f {{.TARGET_DIR}}/docker-compose.yml down
+      - ssh {{.VENUS_SSH_HOST}} "docker compose -f {{.TARGET_DIR}}/docker-compose.yml down || true"
 
   start-remote:
     desc: Start containers on remote
@@ -137,8 +140,10 @@ tasks:
 
   deploy:
     desc: Full deployment (test + build + package + transfer + start)
-    deps: [transfer, stop-remote]
+    deps: [package]
     cmds:
+      - task: stop-remote
+      - task: transfer
       - task: start-remote
       - echo ""
       - echo "==== Deploy finished! ===="

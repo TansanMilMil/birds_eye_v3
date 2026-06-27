@@ -44,7 +44,7 @@ birds_eye_v3/
 
 **単一の `docker-compose.yml` + `.env`** で dev/prod 両方を賄う。
 
-dev/prod の切り替えは `BIRDSEYEAPI_EXECUTION_MODE` 等の環境変数で制御する（既存の仕組みを踏襲）。override ファイルや profiles は使わない。
+dev/prod の切り替えは `BIRDSEYE_BIRDSEYEAPI_EXECUTION_MODE` 等の環境変数で制御する（既存の仕組みを踏襲）。override ファイルや profiles は使わない。
 
 サービス構成:
 
@@ -81,20 +81,20 @@ dev/prod の切り替えは `BIRDSEYEAPI_EXECUTION_MODE` 等の環境変数で�
 
 ```env
 # --- Frontend ---
-VITE_BIRDS_EYE_API_ENDPOINT=http://localhost/api
+BIRDSEYE_VITE_BIRDS_EYE_API_ENDPOINT=http://localhost/api
 
 # --- Backend ---
-MYSQL_ROOT_PASSWORD=
-GO_API_PORT=8080
-BIRDSEYEAPI_EXECUTION_MODE=dev
-OPENAI_MODEL=gpt-4-turbo
-OPENAI_CHAT_ENDPOINT=https://api.openai.com/v1/chat/completions
-BIRDSEYEAPI_V2_OPENAI_API_KEY=
-BIRDSEYEAPI_V2_CLAUDE_API_KEY=
-AWS_REGION=
-AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID=
-SCRAPING_ARTICLES=10
-SELENIUM_URL=http://selenium:4444/wd/hub
+BIRDSEYE_MYSQL_ROOT_PASSWORD=
+BIRDSEYE_GO_API_PORT=8080
+BIRDSEYE_BIRDSEYEAPI_EXECUTION_MODE=dev
+BIRDSEYE_OPENAI_MODEL=gpt-4-turbo
+BIRDSEYE_OPENAI_CHAT_ENDPOINT=https://api.openai.com/v1/chat/completions
+BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY=
+BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY=
+BIRDSEYE_AWS_REGION=
+BIRDSEYE_AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID=
+BIRDSEYE_SCRAPING_ARTICLES=10
+BIRDSEYE_SELENIUM_URL=http://selenium:4444/wd/hub
 ```
 
 ---

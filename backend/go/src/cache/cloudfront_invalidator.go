@@ -9,7 +9,7 @@ type CloudFrontInvalidator struct{}
 
 func (c *CloudFrontInvalidator) Invalidate() bool {
 	err := aws.CreateInvalidation(
-		env.GetEnv("AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID", ""),
+		env.GetEnv("BIRDSEYE_AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID", ""),
 		[]string{
 			"/news/*",
 		})

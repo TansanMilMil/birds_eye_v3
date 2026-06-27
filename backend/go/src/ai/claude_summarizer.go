@@ -37,7 +37,7 @@ type ClaudeResponse struct {
 }
 
 func NewClaudeSummarizer() *ClaudeSummarizer {
-	apiKey := os.Getenv("BIRDSEYEAPI_V2_CLAUDE_API_KEY")
+	apiKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY")
 	baseURL := CLAUDE_CHAT_ENDPOINT
 	claudeModel := CLAUDE_MODEL
 
