@@ -47,7 +47,7 @@ services:
       BIRDSEYE_OPENAI_CHAT_ENDPOINT: "${BIRDSEYE_OPENAI_CHAT_ENDPOINT}"
       BIRDSEYE_SCRAPING_ARTICLES: "${BIRDSEYE_SCRAPING_ARTICLES}"
     # SSL証明書のエラーを防ぐためca-certificatesをインストールしてバイナリを実行
-    command: /bin/bash -c "apt-get update && apt-get install -y ca-certificates && ./go/dist/birds_eye_v3"
+    command: /bin/bash -c "apt-get update && apt-get install -y ca-certificates curl && ./go/dist/birds_eye_v3"
     logging:
       driver: json-file
       options:
@@ -56,6 +56,9 @@ services:
     labels:
       logging: "promtail"
       app_name: "go"
+      ofelia.enabled: "true"
+      ofelia.job-exec.scrape-news.schedule: "0 10 18 * * *"
+      ofelia.job-exec.scrape-news.command: "curl -X POST http://localhost:8080/news/scrape"
 
   selenium:
     image: selenium/standalone-firefox:133.0
@@ -76,6 +79,16 @@ services:
     labels:
       logging: "promtail"
       app_name: "selenium"
+
+  ofelia:
+    image: mcuadros/ofelia:latest
+    container_name: birds_eye_ofelia
+    depends_on:
+      - go
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
 
 volumes:
   db-store:
