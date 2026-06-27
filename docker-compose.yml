@@ -24,9 +24,9 @@ services:
     container_name: birds_eye_nginx
     mem_limit: 64m
     volumes:
-      - ./backend/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./backend/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
-      - ./backend/nginx/log:/var/log/nginx
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/log:/var/log/nginx
       - frontend-build:/var/www/html:ro
     restart: unless-stopped
     tty: true
@@ -87,7 +87,7 @@ services:
     mem_limit: 1g
     volumes:
       - db-store:/var/lib/mysql
-      - ./backend/mysql/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql:ro
+      - ./mysql/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql:ro
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
     ports:

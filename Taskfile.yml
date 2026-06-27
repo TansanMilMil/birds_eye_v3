@@ -59,8 +59,8 @@ tasks:
       - cp ./backend/docker-compose.yml ./backend/deploy-temp/
       - cp ./backend/go-entrypoint.sh ./backend/deploy-temp/
       - cp ./backend/init_db.sh ./backend/deploy-temp/
-      - cp -r ./backend/nginx ./backend/deploy-temp/
-      - cp -r ./backend/mysql ./backend/deploy-temp/
+      - cp -r ./nginx ./backend/deploy-temp/
+      - cp -r ./mysql ./backend/deploy-temp/
       - cp -r ./backend/loki ./backend/deploy-temp/
       - cp -r ./backend/promtail ./backend/deploy-temp/
       - cp -r ./backend/grafana ./backend/deploy-temp/
