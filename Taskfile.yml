@@ -23,29 +23,18 @@ tasks:
     desc: Run local E2E (boot all containers in PRODUCTION mode and assert health)
     deps: [build] # go/dist/birds_eye_v3 を保証 (build は test に依存)
     cmds:
-      - ./backend/scripts/e2e.sh
+      - ./scripts/e2e.sh
 
   test:
     desc: Run tests in Docker
     cmds:
-      - echo "==== Docker compose setup ===="
-      - docker compose down
-      - docker compose up -d go
-      - echo "==== Run all tests ===="
-      - docker compose exec go ./test.sh
-      - docker compose down
+      - ./scripts/test-docker.sh
 
   build:
     desc: Build binary in Docker
     deps: [test]
     cmds:
-      - echo "==== Docker compose setup ===="
-      - docker compose down
-      - docker compose up -d go
-      - echo "==== Build ===="
-      - docker compose exec go ./build.sh
-      - echo "==== Docker compose teardown ===="
-      - docker compose down
+      - ./scripts/build-docker.sh
 
   build-frontend:
     desc: Build frontend locally
@@ -58,76 +47,23 @@ tasks:
     desc: Create deployment package
     deps: [build, build-frontend]
     cmds:
-      - echo "==== Create deploy package ===="
-      - rm -rf ./backend/deploy-temp
-      - mkdir -p ./backend/deploy-temp
-      - mkdir -p ./backend/deploy-temp/backend/go
-      - rsync -a --ignore-missing-args ./backend/go/dist ./backend/deploy-temp/backend/go/
-      - rsync -a --ignore-missing-args ./backend/Dockerfile.prod ./backend/deploy-temp/backend/
-      - rsync -a --ignore-missing-args ./docker-compose.prod.yml ./backend/deploy-temp/docker-compose.yml
-      - rsync -a --ignore-missing-args ./frontend/dist ./backend/deploy-temp/frontend/
-      - rsync -a --ignore-missing-args ./.env ./backend/deploy-temp/ || true
-      - rsync -a --ignore-missing-args ./backend/init_db.sh ./backend/deploy-temp/
-      - rsync -a --ignore-missing-args ./nginx ./backend/deploy-temp/
-      - tar czf ./backend/deploy.tgz -C ./backend/deploy-temp .
-      - rm -rf ./backend/deploy-temp
-      - echo "Package created deploy.tgz"
+      - ./scripts/package.sh
 
   transfer:
     desc: Transfer package to remote
     deps: [package]
-    vars:
-      TARGET_DIR: "{{.VENUS_HOME}}/birds_eye_v3"
     cmds:
-      - echo "==== Transfer to remote ===="
-      - |
-        if [ -z "{{.VENUS_SSH_HOST}}" ]; then
-          echo "Error: VENUS_SSH_HOST is not set. Please check .env file."
-          exit 1
-        fi
-      - |
-        if [ -z "{{.VENUS_HOME}}" ]; then
-          echo "Error: VENUS_HOME is not set. Please check .env file."
-          exit 1
-        fi
-      - ssh {{.VENUS_SSH_HOST}} mkdir -p {{.TARGET_DIR}}
-      - scp ./backend/deploy.tgz {{.VENUS_SSH_HOST}}:{{.TARGET_DIR}}/deploy.tgz
-      - ssh {{.VENUS_SSH_HOST}} "tar xzf {{.TARGET_DIR}}/deploy.tgz -C {{.TARGET_DIR}} && rm {{.TARGET_DIR}}/deploy.tgz"
-      - rm ./backend/deploy.tgz
-      - echo ""
-      - echo "Current files on remote:"
-      - ssh {{.VENUS_SSH_HOST}} ls -alh {{.TARGET_DIR}}
+      - ./scripts/transfer.sh
 
   stop-remote:
     desc: Stop containers on remote
-    vars:
-      TARGET_DIR: "{{.VENUS_HOME}}/birds_eye_v3"
     cmds:
-      - echo "==== Stop birdseyeapi on remote ===="
-      - |
-        if [ -z "{{.VENUS_SSH_HOST}}" ]; then
-          echo "Error: VENUS_SSH_HOST is not set. Please check .env file."
-          exit 1
-        fi
-      - ssh {{.VENUS_SSH_HOST}} "docker compose -f {{.TARGET_DIR}}/docker-compose.yml down || true"
+      - ./scripts/stop-remote.sh
 
   start-remote:
     desc: Start containers on remote
-    vars:
-      TARGET_DIR: "{{.VENUS_HOME}}/birds_eye_v3"
     cmds:
-      - echo "==== Start birdseyeapi on remote ===="
-      - |
-        if [ -z "{{.VENUS_SSH_HOST}}" ]; then
-          echo "Error: VENUS_SSH_HOST is not set. Please check .env file."
-          exit 1
-        fi
-      - ssh {{.VENUS_SSH_HOST}} docker compose -f {{.TARGET_DIR}}/docker-compose.yml up -d
-      - echo ""
-      - echo "Waiting for 10 seconds to get the latest status..."
-      - sleep 10
-      - echo "Current docker containers on remote:"
-      - ssh {{.VENUS_SSH_HOST}} docker ps
+      - ./scripts/start-remote.sh
 
   init-db:
     desc: Initialize database on remote
