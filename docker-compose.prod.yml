@@ -24,7 +24,9 @@ services:
       app_name: "nginx"
 
   go:
-    image: debian:bookworm-slim
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
     container_name: birds_eye_go
     ports:
       - 8080:8080
@@ -48,8 +50,7 @@ services:
       BIRDSEYE_OPENAI_MODEL: "${BIRDSEYE_OPENAI_MODEL}"
       BIRDSEYE_OPENAI_CHAT_ENDPOINT: "${BIRDSEYE_OPENAI_CHAT_ENDPOINT}"
       BIRDSEYE_SCRAPING_ARTICLES: "${BIRDSEYE_SCRAPING_ARTICLES}"
-    # SSL証明書のエラーを防ぐためca-certificatesをインストールしてバイナリを実行
-    command: /bin/bash -c "apt-get update && apt-get install -y ca-certificates curl && ./go/dist/birds_eye_v3"
+    command: ./go/dist/birds_eye_v3
     logging:
       driver: json-file
       options:

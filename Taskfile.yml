@@ -51,6 +51,7 @@ tasks:
     desc: Build frontend locally
     cmds:
       - echo "==== Build frontend ===="
+      - sudo rm -rf ./frontend/dist
       - cd frontend && npm install && npm run build
 
   package:
@@ -62,6 +63,7 @@ tasks:
       - mkdir -p ./backend/deploy-temp
       - mkdir -p ./backend/deploy-temp/backend/go
       - rsync -a --ignore-missing-args ./backend/go/dist ./backend/deploy-temp/backend/go/
+      - rsync -a --ignore-missing-args ./backend/Dockerfile.prod ./backend/deploy-temp/backend/
       - rsync -a --ignore-missing-args ./docker-compose.prod.yml ./backend/deploy-temp/docker-compose.yml
       - rsync -a --ignore-missing-args ./frontend/dist ./backend/deploy-temp/frontend/
       - rsync -a --ignore-missing-args ./.env ./backend/deploy-temp/ || true
@@ -157,6 +159,11 @@ tasks:
     desc: Check remote health status
     cmds:
       - ./backend/check-remote-curl.sh
+
+  db:
+    desc: Open sqlite3 shell on the running go container
+    cmds:
+      - docker compose exec go sqlite3 /data/birds_eye.db
 
   scrape:
     desc: Run scrape.sh
