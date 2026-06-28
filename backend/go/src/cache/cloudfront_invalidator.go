@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"log"
+
 	"github.com/birdseyeapi/birds_eye_v3/go/src/aws"
 	"github.com/birdseyeapi/birds_eye_v3/go/src/env"
 )
@@ -14,10 +16,10 @@ func (c *CloudFrontInvalidator) Invalidate() bool {
 			"/news/*",
 		})
 	if err != nil {
-		println("Error creating CloudFront invalidation:", err.Error())
-	} else {
-		println("CloudFront invalidation created successfully")
+		// CloudFront invalidation is optional — log and continue
+		log.Printf("CloudFront invalidation skipped (non-fatal): %v", err)
+		return false
 	}
-
-	return err == nil
+	log.Printf("CloudFront invalidation created successfully")
+	return true
 }
