@@ -12,29 +12,41 @@ export function TodayNews() {
   const [hasError, setHasError] = useState<boolean>(false);
 
   useEffect(() => {
-    if (newsList.length === 0) {
+    const fetchNews = async () => {
       setIsLoading(true);
       const today = new Date();
-      const targetDate = today.toISOString().slice(0, 10);
 
-      BirdsEyeApi.getTodayNews(targetDate)
-        .then((result) => {
-          const newsList: News[] = result.news.map((news) => {
-            news.scrapedDateTime = new Date(
-              Date.parse(news.scrapedDateTime)
-            ).toLocaleString();
-            return news;
-          });
-          setNewsList(newsList);
-          setIsLoading(false);
-        })
-        .catch((err) => {
+      for (let offset = 0; offset < 7; offset++) {
+        const target = new Date(today);
+        target.setDate(today.getDate() - offset);
+        const targetDate = target.toISOString().slice(0, 10);
+
+        try {
+          const result = await BirdsEyeApi.getTodayNews(targetDate);
+          if (result.news.length > 0) {
+            const mapped: News[] = result.news.map((news) => {
+              news.scrapedDateTime = new Date(
+                Date.parse(news.scrapedDateTime)
+              ).toLocaleString();
+              return news;
+            });
+            setNewsList(mapped);
+            setIsLoading(false);
+            return;
+          }
+        } catch (err) {
           console.error(err);
           setIsLoading(false);
           setHasError(true);
-        });
-    }
-  }, [newsList.length]);
+          return;
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchNews();
+  }, []);
 
   return (
     <div>
