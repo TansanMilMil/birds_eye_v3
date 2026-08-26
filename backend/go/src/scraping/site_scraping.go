@@ -28,6 +28,7 @@ func NewSiteScraping() *SiteScraping {
 		},
 		reactionScrapers: []reaction.ScrapingReaction{
 			reaction.NewScrapeReactionsByHatena(),
+			reaction.NewScrapeReactionsByTwitter(),
 		},
 	}
 }
