@@ -40,7 +40,7 @@ tasks:
     desc: Build frontend locally
     cmds:
       - echo "==== Build frontend ===="
-      - sudo rm -rf ./frontend/dist
+      - rm -rf ./frontend/dist
       - cd frontend && npm install && npm run build
 
   package:
