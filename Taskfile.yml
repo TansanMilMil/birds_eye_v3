@@ -10,6 +10,8 @@ tasks:
     silent: true
 
   run:
+    aliases: [start]
+    desc: Run app locally with Docker Compose
     cmds:
       - docker compose down
       - docker compose up -d
