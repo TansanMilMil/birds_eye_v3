@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/birdseyeapi/birds_eye_v3/go/src/env"
 	"github.com/birdseyeapi/birds_eye_v3/go/src/models"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/firefox"
@@ -23,7 +22,7 @@ const (
 	implicitWait = 5 * time.Second
 )
 
-var SeleniumUrl = env.GetEnv("BIRDSEYE_SELENIUM_URL", "")
+const SeleniumUrl = "http://selenium:4444/wd/hub"
 
 // NewFirefoxDriver creates a single remote Firefox session with headless mode
 // and timeouts configured. The caller owns the returned driver's lifecycle and
