@@ -2,7 +2,6 @@ package news
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/birdseyeapi/birds_eye_v3/go/src/ai"
@@ -33,9 +32,6 @@ func (s *ScrapeNewsByHatena) GetSourceBy() string {
 }
 
 func (s *ScrapeNewsByHatena) ExtractNews() ([]models.News, error) {
-	var news []models.News
-	summarizer := s.summarizer
-
 	d, err := doc.GetWebDoc(HatenaBaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse HTML: %v", err)
@@ -43,42 +39,17 @@ func (s *ScrapeNewsByHatena) ExtractNews() ([]models.News, error) {
 
 	articles := d.Find(HatenaArticleSelector)
 	if articles.Length() == 0 {
-		return nil, fmt.Errorf("no articles found with selector '%s'", ZennArticleSelector)
+		return nil, fmt.Errorf("no articles found with selector '%s'", HatenaArticleSelector)
 	}
 
-	articles = articles.Slice(0, HatenaMaxArticles)
-
-	articles.Each(func(i int, art *goquery.Selection) {
+	var links []articleLink
+	articles.Slice(0, HatenaMaxArticles).Each(func(i int, art *goquery.Selection) {
 		titleElement := art.Find(".entrylist-contents-title > a")
-		title := titleElement.Text()
-		artUrl := titleElement.AttrOr("href", "")
-
-		newsItem := models.News{
-			Title:           title,
-			Description:     "",
-			SourceBy:        HatenaSourceName,
-			ScrapedUrl:      HatenaBaseURL,
-			ScrapedDateTime: time.Now(),
-			ArticleUrl:      artUrl,
-			ArticleImageUrl: "",
-		}
-
-		artDoc, err := doc.GetWebDoc(artUrl)
-		if err != nil {
-			fmt.Printf("Failed to parse article HTML: %v\n", err)
-			return
-		}
-
-		if summarizer != nil {
-			summary, err := summarizer.Summarize(artDoc.Text())
-			if err == nil {
-				newsItem.SummarizedText = summary
-			}
-		}
-
-		news = append(news, newsItem)
-		fmt.Print(".")
+		links = append(links, articleLink{
+			title: titleElement.Text(),
+			url:   titleElement.AttrOr("href", ""),
+		})
 	})
 
-	return news, nil
+	return buildNewsList(s.summarizer, HatenaSourceName, HatenaBaseURL, links), nil
 }

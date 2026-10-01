@@ -1,11 +1,7 @@
 package ai
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 )
 
@@ -37,14 +33,10 @@ type ClaudeResponse struct {
 }
 
 func NewClaudeSummarizer() *ClaudeSummarizer {
-	apiKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY")
-	baseURL := CLAUDE_CHAT_ENDPOINT
-	claudeModel := CLAUDE_MODEL
-
 	return &ClaudeSummarizer{
-		apiKey:      apiKey,
-		baseURL:     baseURL,
-		claudeModel: claudeModel,
+		apiKey:      os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY"),
+		baseURL:     CLAUDE_CHAT_ENDPOINT,
+		claudeModel: CLAUDE_MODEL,
 		maxTokens:   1024,
 	}
 }
@@ -55,50 +47,18 @@ func (s *ClaudeSummarizer) Summarize(text string) (string, error) {
 	}
 
 	reqBody := ClaudeRequest{
-		Model: s.claudeModel,
-		Messages: []ClaudeMessage{
-			{
-				Role: "user",
-				Content: fmt.Sprintf(`次の文章を日本語で要約してください。
-                    なお、要約結果の文章は200文字以内に収まるように調整してください。
-					また、読みやすいように適宜改行を含めてください。
-                    ---
-                    %s`, text),
-			},
-		},
+		Model:     s.claudeModel,
+		Messages:  []ClaudeMessage{{Role: "user", Content: summarizePrompt(text)}},
 		MaxTokens: s.maxTokens,
 	}
-
-	jsonData, err := json.Marshal(reqBody)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal request: %v", err)
-	}
-
-	req, err := http.NewRequest("POST", s.baseURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", fmt.Errorf("failed to create request: %v", err)
-	}
-
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("x-api-key", s.apiKey)
-	req.Header.Add("anthropic-version", "2023-06-01")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to send request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("API returned status code %d: %s", resp.StatusCode, string(bodyBytes))
+	headers := map[string]string{
+		"x-api-key":         s.apiKey,
+		"anthropic-version": "2023-06-01",
 	}
 
 	var respBody ClaudeResponse
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
-	if err != nil {
-		return "", fmt.Errorf("failed to decode response: %v", err)
+	if err := postJSON(s.baseURL, headers, reqBody, &respBody); err != nil {
+		return "", err
 	}
 
 	if len(respBody.Content) == 0 {

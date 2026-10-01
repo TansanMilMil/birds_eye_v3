@@ -16,6 +16,22 @@ const getToday = (): Date => {
   return today;
 };
 
+const shiftDate = (date: Date, days: number): Date => {
+  const shifted = new Date(date);
+  shifted.setDate(date.getDate() + days);
+  return shifted;
+};
+
+const fetchNews = async (date: Date): Promise<News[]> => {
+  const result = await BirdsEyeApi.getTodayNews(toDateKey(date));
+  return result.news.map((news) => {
+    news.scrapedDateTime = new Date(
+      Date.parse(news.scrapedDateTime)
+    ).toLocaleString();
+    return news;
+  });
+};
+
 export function TodayNews() {
   const [newsList, setNewsList] = useState<News[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -26,14 +42,7 @@ export function TodayNews() {
     setIsLoading(true);
     setHasError(false);
     try {
-      const result = await BirdsEyeApi.getTodayNews(toDateKey(date));
-      const mapped: News[] = result.news.map((news) => {
-        news.scrapedDateTime = new Date(
-          Date.parse(news.scrapedDateTime)
-        ).toLocaleString();
-        return news;
-      });
-      setNewsList(mapped);
+      setNewsList(await fetchNews(date));
     } catch (err) {
       console.error(err);
       setHasError(true);
@@ -46,52 +55,31 @@ export function TodayNews() {
     const findLatestAvailableDate = async () => {
       setIsLoading(true);
       const today = getToday();
-
-      for (let offset = 0; offset < 7; offset++) {
-        const target = new Date(today);
-        target.setDate(today.getDate() - offset);
-
-        try {
-          const result = await BirdsEyeApi.getTodayNews(toDateKey(target));
-          if (result.news.length > 0) {
-            const mapped: News[] = result.news.map((news) => {
-              news.scrapedDateTime = new Date(
-                Date.parse(news.scrapedDateTime)
-              ).toLocaleString();
-              return news;
-            });
-            setNewsList(mapped);
+      try {
+        for (let offset = 0; offset < 7; offset++) {
+          const target = shiftDate(today, -offset);
+          const news = await fetchNews(target);
+          if (news.length > 0) {
+            setNewsList(news);
             setTargetDate(target);
-            setIsLoading(false);
             return;
           }
-        } catch (err) {
-          console.error(err);
-          setHasError(true);
-          setIsLoading(false);
-          return;
         }
+        setTargetDate(today);
+      } catch (err) {
+        console.error(err);
+        setHasError(true);
+      } finally {
+        setIsLoading(false);
       }
-
-      setTargetDate(today);
-      setIsLoading(false);
     };
 
     findLatestAvailableDate();
   }, []);
 
-  const handlePrevDay = () => {
+  const moveDay = (days: number) => {
     if (!targetDate) return;
-    const prev = new Date(targetDate);
-    prev.setDate(targetDate.getDate() - 1);
-    setTargetDate(prev);
-    fetchNewsForDate(prev);
-  };
-
-  const handleNextDay = () => {
-    if (!targetDate) return;
-    const next = new Date(targetDate);
-    next.setDate(targetDate.getDate() + 1);
+    const next = shiftDate(targetDate, days);
     setTargetDate(next);
     fetchNewsForDate(next);
   };
@@ -116,7 +104,7 @@ export function TodayNews() {
               marginBottom: "1rem",
             }}
           >
-            <IconButton onClick={handlePrevDay} disabled={isLoading}>
+            <IconButton onClick={() => moveDay(-1)} disabled={isLoading}>
               <ArrowBackIosNewIcon />
             </IconButton>
             <Typography variant="h6">
@@ -127,7 +115,7 @@ export function TodayNews() {
               })}
             </Typography>
             <IconButton
-              onClick={handleNextDay}
+              onClick={() => moveDay(1)}
               disabled={isLoading || isNextDisabled}
             >
               <ArrowForwardIosIcon />

@@ -1,11 +1,7 @@
 package ai
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 )
 
@@ -37,14 +33,10 @@ type OpenAIResponse struct {
 }
 
 func NewOpenAISummarizer() *OpenAISummarizer {
-	apiKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY")
-	baseURL := BIRDSEYE_OPENAI_CHAT_ENDPOINT
-	openAIModel := BIRDSEYE_OPENAI_MODEL
-
 	return &OpenAISummarizer{
-		apiKey:      apiKey,
-		baseURL:     baseURL,
-		openAIModel: openAIModel,
+		apiKey:      os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY"),
+		baseURL:     BIRDSEYE_OPENAI_CHAT_ENDPOINT,
+		openAIModel: BIRDSEYE_OPENAI_MODEL,
 	}
 }
 
@@ -54,51 +46,14 @@ func (s *OpenAISummarizer) Summarize(text string) (string, error) {
 	}
 
 	reqBody := OpenAIRequest{
-		Model: s.openAIModel,
-		Messages: []Message{
-			{
-				Role: "user",
-				Content: fmt.Sprintf(`次の文章を日本語で要約してください。
-                    なお、要約結果の文章は200文字以内に収まるように調整してください。
-					また、読みやすいように適宜改行を含めてください。
-                    ---
-                    %s`, text),
-			},
-		},
+		Model:    s.openAIModel,
+		Messages: []Message{{Role: "user", Content: summarizePrompt(text)}},
 	}
-
-	jsonData, err := json.Marshal(reqBody)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal request: %v", err)
-	}
-
-	req, err := http.NewRequest("POST", s.baseURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", fmt.Errorf("failed to create request: %v", err)
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "Bearer "+s.apiKey)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Print("s.baseURL", s.baseURL)
-		fmt.Print("reqBody.Model", reqBody.Model)
-		fmt.Print("reqBody.Messages[0].len:", len(reqBody.Messages[0].Content))
-		return "", fmt.Errorf("failed to send request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("API returned status code %d: %s", resp.StatusCode, string(bodyBytes))
-	}
+	headers := map[string]string{"Authorization": "Bearer " + s.apiKey}
 
 	var respBody OpenAIResponse
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
-	if err != nil {
-		return "", fmt.Errorf("failed to decode response: %v", err)
+	if err := postJSON(s.baseURL, headers, reqBody, &respBody); err != nil {
+		return "", err
 	}
 
 	if len(respBody.Choices) == 0 {

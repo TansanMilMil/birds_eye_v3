@@ -3,7 +3,6 @@ package news
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/birdseyeapi/birds_eye_v3/go/src/ai"
@@ -34,9 +33,6 @@ func (s *ScrapeNewsByCloudWatchImpress) GetSourceBy() string {
 }
 
 func (s *ScrapeNewsByCloudWatchImpress) ExtractNews() ([]models.News, error) {
-	var news []models.News
-	summarizer := s.summarizer
-
 	d, err := doc.GetWebDoc(CloudWatchBaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse HTML: %v", err)
@@ -47,46 +43,19 @@ func (s *ScrapeNewsByCloudWatchImpress) ExtractNews() ([]models.News, error) {
 		return nil, fmt.Errorf("no articles found with selector '%s'", CloudWatchArticleSelector)
 	}
 
-	articles = articles.Slice(0, CloudWatchMaxArticles)
-
-	articles.Each(func(i int, art *goquery.Selection) {
-
+	var links []articleLink
+	articles.Slice(0, CloudWatchMaxArticles).Each(func(i int, art *goquery.Selection) {
 		titleElement := art.Find("p.title > a")
-		artUrlPath := strings.TrimSpace(titleElement.AttrOr("href", ""))
-		title := strings.TrimSpace(titleElement.Text())
-
-		// Convert relative path to absolute URL
-		artUrl := artUrlPath
-		if artUrlPath != "" && !strings.HasPrefix(artUrlPath, "http") {
-			artUrl = CloudWatchBaseURL + artUrlPath
+		artUrl := strings.TrimSpace(titleElement.AttrOr("href", ""))
+		if artUrl != "" && !strings.HasPrefix(artUrl, "http") {
+			artUrl = CloudWatchBaseURL + artUrl
 		}
 
-		newsItem := models.News{
-			Title:           title,
-			Description:     "",
-			SourceBy:        CloudWatchSourceName,
-			ScrapedUrl:      CloudWatchBaseURL,
-			ScrapedDateTime: time.Now(),
-			ArticleUrl:      artUrl,
-			ArticleImageUrl: "",
-		}
-
-		artDoc, err := doc.GetWebDoc(artUrl)
-		if err != nil {
-			fmt.Printf("Failed to parse article HTML: %v\n", err)
-			return
-		}
-
-		if summarizer != nil {
-			summary, err := summarizer.Summarize(artDoc.Text())
-			if err == nil {
-				newsItem.SummarizedText = summary
-			}
-		}
-
-		news = append(news, newsItem)
-		fmt.Print(".")
+		links = append(links, articleLink{
+			title: strings.TrimSpace(titleElement.Text()),
+			url:   artUrl,
+		})
 	})
 
-	return news, nil
+	return buildNewsList(s.summarizer, CloudWatchSourceName, CloudWatchBaseURL, links), nil
 }
