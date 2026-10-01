@@ -135,3 +135,42 @@ func TestGetNewsByDate_NoNewsFound(t *testing.T) {
 		t.Errorf("Expected 0 news items, got %d", len(newsList))
 	}
 }
+
+func TestGetNewsByDate_SortedByImportance(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	today := time.Now()
+	mockNews := createMockNews(today, 4)
+	for i, importance := range []float64{0.2, 0.9, 0, 0.5} {
+		mockNews[i].Importance = importance
+	}
+
+	handler := setupTestHandler(mockNews)
+
+	r.GET("/news/:target_date", handler.GetNewsByDate)
+	c.Request = httptest.NewRequest("GET", "/news/"+today.Format("2006-01-02"), nil)
+	r.ServeHTTP(w, c.Request)
+
+	var resp struct {
+		News []models.GetAllNewsResponse `json:"news"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to unmarshal response: %v", err)
+	}
+
+	var got []float64
+	for _, n := range resp.News {
+		got = append(got, n.Importance)
+	}
+	want := []float64{0.9, 0.5, 0.2, 0}
+	if len(got) != len(want) {
+		t.Fatalf("Expected %d news items, got %d", len(want), len(got))
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("Expected importance order %v, got %v", want, got)
+		}
+	}
+}

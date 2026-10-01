@@ -12,9 +12,10 @@ import (
 )
 
 type SiteScraping struct {
-	scrapers         []news.ScrapingNews
-	reactionScrapers []reaction.ScrapingReaction
-	categorizer      ai.Categorizer
+	scrapers          []news.ScrapingNews
+	reactionScrapers  []reaction.ScrapingReaction
+	articleAnalyzer   ai.ArticleAnalyzer
+	sentimentAnalyzer ai.ReactionSentimentAnalyzer
 }
 
 func NewSiteScraping() *SiteScraping {
@@ -27,11 +28,12 @@ func NewSiteScraping() *SiteScraping {
 			news.NewScrapeNewsByZenn(summarizer),
 			news.NewScrapeNewsByZDNet(summarizer),
 		},
-		categorizer: ai.NewJevCategorizer(),
 		reactionScrapers: []reaction.ScrapingReaction{
 			reaction.NewScrapeReactionsByHatena(),
 			reaction.NewScrapeReactionsByTwitter(),
 		},
+		articleAnalyzer:   ai.NewJevArticleAnalyzer(),
+		sentimentAnalyzer: ai.NewJevReactionSentimentAnalyzer(),
 	}
 }
 
@@ -50,25 +52,51 @@ func (s *SiteScraping) ScrapeNews() ([]models.News, error) {
 		allNews = append(allNews, news...)
 	}
 
-	s.categorizeNews(allNews)
-
-	return allNews, nil
+	return s.analyzeNews(allNews), nil
 }
 
-func (s *SiteScraping) categorizeNews(newsList []models.News) {
-	if s.categorizer == nil {
-		return
+func (s *SiteScraping) analyzeNews(newsList []models.News) []models.News {
+	analyzed := make([]models.News, len(newsList))
+	copy(analyzed, newsList)
+
+	if s.articleAnalyzer == nil {
+		return analyzed
 	}
 
-	for i := range newsList {
-		n := &newsList[i]
-		result, err := s.categorizer.Categorize(n.Title, n.SummarizedText, n.SourceBy)
+	for i := range analyzed {
+		n := &analyzed[i]
+		result, err := s.articleAnalyzer.Analyze(n.Title, n.SummarizedText, n.SourceBy)
 		if err != nil {
-			fmt.Printf("Failed to categorize article %q: %v\n", n.Title, err)
+			fmt.Printf("Failed to analyze article %q: %v\n", n.Title, err)
 			continue
 		}
 		n.Category = result.Category
-		n.CategoryConfidence = result.Confidence
+		n.CategoryConfidence = result.CategoryConfidence
+		n.Importance = result.Importance
+	}
+
+	return analyzed
+}
+
+func (s *SiteScraping) AnalyzeReactionSentiment(news models.News) models.ReactionSentiment {
+	if s.sentimentAnalyzer == nil || len(news.Reactions) == 0 {
+		return models.ReactionSentiment{}
+	}
+
+	comments := make([]string, len(news.Reactions))
+	for i, r := range news.Reactions {
+		comments[i] = r.Comment
+	}
+
+	counts, err := s.sentimentAnalyzer.Analyze(news.Title, comments)
+	if err != nil {
+		fmt.Printf("Failed to analyze reaction sentiment of %q: %v\n", news.Title, err)
+		return models.ReactionSentiment{}
+	}
+	return models.ReactionSentiment{
+		Positive: counts.Positive,
+		Neutral:  counts.Neutral,
+		Negative: counts.Negative,
 	}
 }
 

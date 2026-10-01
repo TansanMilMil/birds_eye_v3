@@ -6,34 +6,38 @@ import (
 
 // NewsResponse represents the API response format for news articles
 type GetAllNewsResponse struct {
-	ID              uint      `json:"id"`
-	Title           string    `json:"title"`
-	Description     string    `json:"description"`
-	SummarizedText  string    `json:"summarizedText"`
-	SourceBy        string    `json:"sourceBy"`
-	Category        string    `json:"category"`
-	ScrapedUrl      string    `json:"scrapedUrl"`
-	ScrapedDateTime time.Time `json:"scrapedDateTime"`
-	ArticleUrl      string    `json:"articleUrl"`
-	ArticleImageUrl string    `json:"articleImageUrl"`
-	ReactionCount   uint      `json:"reactionCount"`
+	ID                uint              `json:"id"`
+	Title             string            `json:"title"`
+	Description       string            `json:"description"`
+	SummarizedText    string            `json:"summarizedText"`
+	SourceBy          string            `json:"sourceBy"`
+	Category          string            `json:"category"`
+	Importance        float64           `json:"importance"`
+	ScrapedUrl        string            `json:"scrapedUrl"`
+	ScrapedDateTime   time.Time         `json:"scrapedDateTime"`
+	ArticleUrl        string            `json:"articleUrl"`
+	ArticleImageUrl   string            `json:"articleImageUrl"`
+	ReactionCount     uint              `json:"reactionCount"`
+	ReactionSentiment ReactionSentiment `json:"reactionSentiment"`
 }
 
 func ToGetAllNewsResponse(n []News) []GetAllNewsResponse {
 	results := make([]GetAllNewsResponse, len(n))
 	for i, news := range n {
 		results[i] = GetAllNewsResponse{
-			ID:              news.ID,
-			Title:           news.Title,
-			Description:     news.Description,
-			SummarizedText:  news.SummarizedText,
-			SourceBy:        news.SourceBy,
-			Category:        news.Category,
-			ScrapedUrl:      news.ScrapedUrl,
-			ScrapedDateTime: news.ScrapedDateTime,
-			ArticleUrl:      news.ArticleUrl,
-			ArticleImageUrl: news.ArticleImageUrl,
-			ReactionCount:   uint(len(news.Reactions)),
+			ID:                news.ID,
+			Title:             news.Title,
+			Description:       news.Description,
+			SummarizedText:    news.SummarizedText,
+			SourceBy:          news.SourceBy,
+			Category:          news.Category,
+			Importance:        news.Importance,
+			ScrapedUrl:        news.ScrapedUrl,
+			ScrapedDateTime:   news.ScrapedDateTime,
+			ArticleUrl:        news.ArticleUrl,
+			ArticleImageUrl:   news.ArticleImageUrl,
+			ReactionCount:     uint(len(news.Reactions)),
+			ReactionSentiment: news.ReactionSentiment,
 		}
 	}
 

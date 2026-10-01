@@ -2,6 +2,7 @@ import { News } from "../../types/news";
 import { Box, Chip, Link, Zoom } from "@mui/material";
 import styles from "./MainArticle.module.css";
 import { ReactionArea } from "./ReactionArea";
+import { SentimentMeter } from "./SentimentMeter";
 import { categoryLabels } from "../../types/category";
 
 type Props = {
@@ -52,6 +53,9 @@ export function MainArticle({ news, isDisplayReactions = false }: Props) {
               variant="outlined"
               sx={{ marginLeft: "0.5rem" }}
             />
+          )}
+          {isDisplayReactions && (
+            <SentimentMeter sentiment={news.reactionSentiment} />
           )}
           {isDisplayReactions && (
             <ReactionArea

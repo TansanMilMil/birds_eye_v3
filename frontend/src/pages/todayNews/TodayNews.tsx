@@ -8,6 +8,9 @@ import { useEffect, useState } from "react";
 import { BirdsEyeApi } from "../../api/birdsEyeApi";
 import { ThemeColorSetting } from "../../share-components/config/ThemeColorSetting";
 
+const PICKUP_MIN_IMPORTANCE = 0.6;
+const PICKUP_LIMIT = 3;
+
 const toDateKey = (date: Date): string => date.toISOString().slice(0, 10);
 
 const getToday = (): Date => {
@@ -84,6 +87,11 @@ export function TodayNews() {
     fetchNewsForDate(next);
   };
 
+  const pickupNews = newsList
+    .filter((news) => news.importance >= PICKUP_MIN_IMPORTANCE)
+    .slice(0, PICKUP_LIMIT);
+  const otherNews = newsList.filter((news) => !pickupNews.includes(news));
+
   const isNextDisabled = targetDate
     ? toDateKey(targetDate) >= toDateKey(getToday())
     : true;
@@ -133,14 +141,33 @@ export function TodayNews() {
             この日のニュースはありません
           </Typography>
         )}
-        {!isLoading && newsList.length > 0 && (
+        {!isLoading && pickupNews.length > 0 && (
+          <Box sx={{ marginBottom: "2rem" }}>
+            <Typography variant="h6" sx={{ marginBottom: "0.5rem" }}>
+              ピックアップ
+            </Typography>
+            <Masonry
+              columns={{ xs: 1, sm: 2, md: 3 }}
+              spacing={{ xs: 1, sm: 1, md: 1 }}
+            >
+              {pickupNews.map((news) => (
+                <MainArticle
+                  key={news.id}
+                  news={news}
+                  isDisplayReactions={true}
+                ></MainArticle>
+              ))}
+            </Masonry>
+          </Box>
+        )}
+        {!isLoading && otherNews.length > 0 && (
           <Masonry
             columns={{ xs: 1, sm: 2, md: 3 }}
             spacing={{ xs: 1, sm: 1, md: 1 }}
           >
-            {newsList.map((news, i) => (
+            {otherNews.map((news) => (
               <MainArticle
-                key={i}
+                key={news.id}
                 news={news}
                 isDisplayReactions={true}
               ></MainArticle>

@@ -13,13 +13,14 @@ const (
 	CategoryOther            = "other"
 )
 
-type CategoryResult struct {
-	Category   string
-	Confidence float64
+type ArticleAnalysis struct {
+	Category           string
+	CategoryConfidence float64
+	Importance         float64
 }
 
-type Categorizer interface {
-	Categorize(title, summary, sourceBy string) (CategoryResult, error)
+type ArticleAnalyzer interface {
+	Analyze(title, summary, sourceBy string) (ArticleAnalysis, error)
 }
 
 var categoryDescriptions = map[string]string{

@@ -8,20 +8,22 @@ import (
 
 type News struct {
 	gorm.Model
-	ID                 uint           `gorm:"primarykey"`
-	ScrapingUnitID     uint           `json:"scrapingUnitId"`
-	CreatedAt          time.Time      `gorm:"index"`
-	Title              string         `gorm:"size:200" json:"title"`
-	Description        string         `gorm:"type:text" json:"description"`
-	SummarizedText     string         `gorm:"type:text" json:"summarizedText"`
-	SourceBy           string         `json:"sourceBy"`
-	Category           string         `gorm:"size:50;index" json:"category"`
-	CategoryConfidence float64        `json:"categoryConfidence"`
-	ScrapedUrl         string         `gorm:"type:text" json:"scrapedUrl"`
-	ScrapedDateTime    time.Time      `json:"scrapedDateTime"`
-	ArticleUrl         string         `gorm:"type:text" json:"articleUrl"`
-	ArticleImageUrl    string         `gorm:"type:text" json:"articleImageUrl"`
-	Reactions          []NewsReaction `gorm:"foreignKey:NewsID" json:"reactions"`
+	ID                 uint              `gorm:"primarykey"`
+	ScrapingUnitID     uint              `json:"scrapingUnitId"`
+	CreatedAt          time.Time         `gorm:"index"`
+	Title              string            `gorm:"size:200" json:"title"`
+	Description        string            `gorm:"type:text" json:"description"`
+	SummarizedText     string            `gorm:"type:text" json:"summarizedText"`
+	SourceBy           string            `json:"sourceBy"`
+	Category           string            `gorm:"size:50;index" json:"category"`
+	CategoryConfidence float64           `json:"categoryConfidence"`
+	Importance         float64           `json:"importance"`
+	ReactionSentiment  ReactionSentiment `gorm:"embedded;embeddedPrefix:reaction_" json:"reactionSentiment"`
+	ScrapedUrl         string            `gorm:"type:text" json:"scrapedUrl"`
+	ScrapedDateTime    time.Time         `json:"scrapedDateTime"`
+	ArticleUrl         string            `gorm:"type:text" json:"articleUrl"`
+	ArticleImageUrl    string            `gorm:"type:text" json:"articleImageUrl"`
+	Reactions          []NewsReaction    `gorm:"foreignKey:NewsID" json:"reactions"`
 }
 
 type NewsWithReactionCount struct {

@@ -6,6 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
+type ReactionSentiment struct {
+	Positive int `json:"positive"`
+	Neutral  int `json:"neutral"`
+	Negative int `json:"negative"`
+}
+
 type NewsReaction struct {
 	gorm.Model
 	ID              uint      `gorm:"primarykey"`

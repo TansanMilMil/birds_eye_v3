@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
+	"sort"
 	"sync"
 	"time"
 
@@ -55,6 +56,9 @@ func (h *NewsHandler) GetNewsByDate(c *gin.Context) {
 	}
 
 	slice.Shuffle(news)
+	sort.SliceStable(news, func(i, j int) bool {
+		return news[i].Importance > news[j].Importance
+	})
 	newsResponses := models.ToGetAllNewsResponse(news)
 
 	c.JSON(http.StatusOK, gin.H{
@@ -140,16 +144,19 @@ func (h *NewsHandler) scrapeReactions(news []models.News, scraper *scraping.Site
 		}
 	}()
 
-	for i := range news {
-		reactions, err := scraper.ScrapeReactions(driver, news[i])
+	saved := make([]models.News, len(news))
+	for i, n := range news {
+		reactions, err := scraper.ScrapeReactions(driver, n)
 		if err != nil {
 			log.Printf("Error scraping reactions: %v", err)
 		}
-		news[i].Reactions = reactions
-		h.db.Create(&news[i])
+		n.Reactions = reactions
+		n.ReactionSentiment = scraper.AnalyzeReactionSentiment(n)
+		h.db.Create(&n)
+		saved[i] = n
 	}
 
-	log.Printf("News scraping completed successfully, articles saved: %d", len(news))
+	log.Printf("News scraping completed successfully, articles saved: %d", len(saved))
 
-	return news
+	return saved
 }
