@@ -4,6 +4,7 @@ export type News = {
     description: string;
     summarizedText: string;
     sourceBy: string;
+    category: string;
     scrapedUrl: string;
     scrapedDateTime: string;
     articleUrl: string;

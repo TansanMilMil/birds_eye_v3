@@ -11,6 +11,7 @@ type GetAllNewsResponse struct {
 	Description     string    `json:"description"`
 	SummarizedText  string    `json:"summarizedText"`
 	SourceBy        string    `json:"sourceBy"`
+	Category        string    `json:"category"`
 	ScrapedUrl      string    `json:"scrapedUrl"`
 	ScrapedDateTime time.Time `json:"scrapedDateTime"`
 	ArticleUrl      string    `json:"articleUrl"`
@@ -27,6 +28,7 @@ func ToGetAllNewsResponse(n []News) []GetAllNewsResponse {
 			Description:     news.Description,
 			SummarizedText:  news.SummarizedText,
 			SourceBy:        news.SourceBy,
+			Category:        news.Category,
 			ScrapedUrl:      news.ScrapedUrl,
 			ScrapedDateTime: news.ScrapedDateTime,
 			ArticleUrl:      news.ArticleUrl,

@@ -2,6 +2,7 @@ import { News } from "../../types/news";
 import { Box, Chip, Link, Zoom } from "@mui/material";
 import styles from "./MainArticle.module.css";
 import { ReactionArea } from "./ReactionArea";
+import { categoryLabels } from "../../types/category";
 
 type Props = {
   news: News;
@@ -43,6 +44,14 @@ export function MainArticle({ news, isDisplayReactions = false }: Props) {
           </Box>
           {news.sourceBy && (
             <Chip label={news.sourceBy} size="small" onClick={clickSourceBy} />
+          )}
+          {categoryLabels[news.category] && (
+            <Chip
+              label={categoryLabels[news.category]}
+              size="small"
+              variant="outlined"
+              sx={{ marginLeft: "0.5rem" }}
+            />
           )}
           {isDisplayReactions && (
             <ReactionArea

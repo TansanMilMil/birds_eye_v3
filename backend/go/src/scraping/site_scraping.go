@@ -14,6 +14,7 @@ import (
 type SiteScraping struct {
 	scrapers         []news.ScrapingNews
 	reactionScrapers []reaction.ScrapingReaction
+	categorizer      ai.Categorizer
 }
 
 func NewSiteScraping() *SiteScraping {
@@ -26,6 +27,7 @@ func NewSiteScraping() *SiteScraping {
 			news.NewScrapeNewsByZenn(summarizer),
 			news.NewScrapeNewsByZDNet(summarizer),
 		},
+		categorizer: ai.NewJevCategorizer(),
 		reactionScrapers: []reaction.ScrapingReaction{
 			reaction.NewScrapeReactionsByHatena(),
 			reaction.NewScrapeReactionsByTwitter(),
@@ -48,7 +50,26 @@ func (s *SiteScraping) ScrapeNews() ([]models.News, error) {
 		allNews = append(allNews, news...)
 	}
 
+	s.categorizeNews(allNews)
+
 	return allNews, nil
+}
+
+func (s *SiteScraping) categorizeNews(newsList []models.News) {
+	if s.categorizer == nil {
+		return
+	}
+
+	for i := range newsList {
+		n := &newsList[i]
+		result, err := s.categorizer.Categorize(n.Title, n.SummarizedText, n.SourceBy)
+		if err != nil {
+			fmt.Printf("Failed to categorize article %q: %v\n", n.Title, err)
+			continue
+		}
+		n.Category = result.Category
+		n.CategoryConfidence = result.Confidence
+	}
 }
 
 // NewReactionDriver creates a single Selenium session to be shared across all
