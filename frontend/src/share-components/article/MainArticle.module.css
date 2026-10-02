@@ -17,6 +17,12 @@
   color: #aaa;
 }
 
+.chips {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
 .title {
   font-size: 1.2rem;
   font-weight: bold;

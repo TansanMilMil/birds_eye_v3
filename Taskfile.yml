@@ -103,6 +103,11 @@ tasks:
     cmds:
       - docker compose exec go sqlite3 /data/birds_eye.db
 
+  seed:
+    desc: Insert mock news into the DB of the running go container (debug)
+    cmds:
+      - docker compose exec go go run ./go/src/cmd/seed
+
   scrape:
     desc: Run scrape.sh
     cmds:

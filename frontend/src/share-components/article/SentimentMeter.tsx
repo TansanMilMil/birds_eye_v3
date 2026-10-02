@@ -1,4 +1,6 @@
 import { Box, Tooltip, Typography } from "@mui/material";
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
 import { ReactionSentiment } from "../../types/news";
 
 const MIN_SENTIMENT_SAMPLES = 3;
@@ -36,11 +38,19 @@ export function SentimentMeter({ sentiment }: Props) {
             fontSize: "0.75rem",
           }}
         >
-          <Typography variant="caption" sx={{ color: "success.main" }}>
-            賛 {toPercent(positive, total)}%
+          <Typography
+            variant="caption"
+            sx={{ color: "success.main", display: "inline-flex", alignItems: "center", gap: "0.2rem" }}
+          >
+            <ThumbUpOffAltIcon aria-label="賛成" sx={{ fontSize: "1rem" }} />
+            {toPercent(positive, total)}%
           </Typography>
-          <Typography variant="caption" sx={{ color: "error.main" }}>
-            否 {toPercent(negative, total)}%
+          <Typography
+            variant="caption"
+            sx={{ color: "error.main", display: "inline-flex", alignItems: "center", gap: "0.2rem" }}
+          >
+            <ThumbDownOffAltIcon aria-label="否定" sx={{ fontSize: "1rem" }} />
+            {toPercent(negative, total)}%
           </Typography>
         </Box>
         <Box

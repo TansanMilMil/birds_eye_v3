@@ -29,6 +29,18 @@ export function MainArticle({ news, isDisplayReactions = false }: Props) {
               </div>
             </a>
           )}
+          <div className={styles.chips}>
+            {categoryLabels[news.category] && (
+              <Chip
+                label={categoryLabels[news.category]}
+                size="small"
+                variant="outlined"
+              />
+            )}
+            {news.sourceBy && (
+              <Chip label={news.sourceBy} size="small" onClick={clickSourceBy} />
+            )}
+          </div>
           <div className={styles.title}>
             <Link
               href={news.articleUrl}
@@ -43,17 +55,6 @@ export function MainArticle({ news, isDisplayReactions = false }: Props) {
           <Box sx={{ color: "secondary.main" }}>
             <div className={styles.scrapedDateTime}>{news.scrapedDateTime}</div>
           </Box>
-          {news.sourceBy && (
-            <Chip label={news.sourceBy} size="small" onClick={clickSourceBy} />
-          )}
-          {categoryLabels[news.category] && (
-            <Chip
-              label={categoryLabels[news.category]}
-              size="small"
-              variant="outlined"
-              sx={{ marginLeft: "0.5rem" }}
-            />
-          )}
           {isDisplayReactions && (
             <SentimentMeter sentiment={news.reactionSentiment} />
           )}
