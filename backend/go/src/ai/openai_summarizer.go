@@ -6,7 +6,6 @@ import (
 )
 
 const BIRDSEYE_OPENAI_CHAT_ENDPOINT = "https://api.openai.com/v1/chat/completions"
-const BIRDSEYE_OPENAI_MODEL = "gpt-4.1-mini"
 
 type OpenAISummarizer struct {
 	apiKey      string
@@ -36,13 +35,16 @@ func NewOpenAISummarizer() *OpenAISummarizer {
 	return &OpenAISummarizer{
 		apiKey:      os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY"),
 		baseURL:     BIRDSEYE_OPENAI_CHAT_ENDPOINT,
-		openAIModel: BIRDSEYE_OPENAI_MODEL,
+		openAIModel: os.Getenv("BIRDSEYE_OPENAI_MODEL"),
 	}
 }
 
 func (s *OpenAISummarizer) Summarize(text string) (string, error) {
 	if s.apiKey == "" {
 		return "", fmt.Errorf("OpenAI API key not found")
+	}
+	if s.openAIModel == "" {
+		return "", fmt.Errorf("OpenAI model not found")
 	}
 
 	reqBody := OpenAIRequest{

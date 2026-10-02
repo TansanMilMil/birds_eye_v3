@@ -8,9 +8,12 @@ import (
 func TestNewOpenAISummarizer(t *testing.T) {
 	// 環境変数を保存
 	originalAPIKey := os.Getenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY")
+	originalModel := os.Getenv("BIRDSEYE_OPENAI_MODEL")
 	defer func() {
 		os.Setenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY", originalAPIKey)
+		os.Setenv("BIRDSEYE_OPENAI_MODEL", originalModel)
 	}()
+	os.Setenv("BIRDSEYE_OPENAI_MODEL", "gpt-test-model")
 
 	t.Run("環境変数が設定されている場合", func(t *testing.T) {
 		os.Setenv("BIRDSEYE_BIRDSEYEAPI_V2_OPENAI_API_KEY", "test-api-key")
@@ -23,8 +26,8 @@ func TestNewOpenAISummarizer(t *testing.T) {
 		if summarizer.baseURL != BIRDSEYE_OPENAI_CHAT_ENDPOINT {
 			t.Errorf("Expected baseURL to be '%s', got '%s'", BIRDSEYE_OPENAI_CHAT_ENDPOINT, summarizer.baseURL)
 		}
-		if summarizer.openAIModel != BIRDSEYE_OPENAI_MODEL {
-			t.Errorf("Expected openAIModel to be '%s', got '%s'", BIRDSEYE_OPENAI_MODEL, summarizer.openAIModel)
+		if summarizer.openAIModel != "gpt-test-model" {
+			t.Errorf("Expected openAIModel to be 'gpt-test-model', got '%s'", summarizer.openAIModel)
 		}
 	})
 
@@ -39,10 +42,27 @@ func TestNewOpenAISummarizer(t *testing.T) {
 		if summarizer.baseURL != BIRDSEYE_OPENAI_CHAT_ENDPOINT {
 			t.Errorf("Expected baseURL to be '%s', got '%s'", BIRDSEYE_OPENAI_CHAT_ENDPOINT, summarizer.baseURL)
 		}
-		if summarizer.openAIModel != BIRDSEYE_OPENAI_MODEL {
-			t.Errorf("Expected openAIModel to be '%s', got '%s'", BIRDSEYE_OPENAI_MODEL, summarizer.openAIModel)
+		if summarizer.openAIModel != "gpt-test-model" {
+			t.Errorf("Expected openAIModel to be 'gpt-test-model', got '%s'", summarizer.openAIModel)
 		}
 	})
+}
+
+func TestOpenAISummarizer_Summarize_NoModel(t *testing.T) {
+	original := os.Getenv("BIRDSEYE_OPENAI_MODEL")
+	defer os.Setenv("BIRDSEYE_OPENAI_MODEL", original)
+	os.Unsetenv("BIRDSEYE_OPENAI_MODEL")
+
+	summarizer := NewOpenAISummarizer()
+	summarizer.apiKey = "test-api-key"
+
+	_, err := summarizer.Summarize("test text")
+	if err == nil {
+		t.Fatal("Expected error when model is not set")
+	}
+	if err.Error() != "OpenAI model not found" {
+		t.Errorf("Expected error message 'OpenAI model not found', got '%s'", err.Error())
+	}
 }
 
 func TestOpenAISummarizer_Summarize_NoAPIKey(t *testing.T) {
