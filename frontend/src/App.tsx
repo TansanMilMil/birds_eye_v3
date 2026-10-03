@@ -20,6 +20,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { MuiTheme } from "./mui-theme";
 import { RootState } from "./app/store";
 import { ScrollToTopButton } from "./share-components/scroll/ScrollToTopButton";
+import { ScrollToTopOnRouteChange } from "./share-components/scroll/ScrollToTopOnRouteChange";
 
 export function App() {
   const navigate = useNavigate();
@@ -98,6 +99,7 @@ export function App() {
           </BottomNavigation>
 
           <ScrollToTopButton />
+          <ScrollToTopOnRouteChange />
         </div>
       </Box>
     </ThemeProvider>
