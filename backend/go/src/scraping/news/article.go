@@ -31,6 +31,10 @@ func buildNews(summarizer ai.Summarizer, sourceBy, scrapedUrl string, link artic
 		return models.News{}, false
 	}
 
+	if ogImage := doc.ExtractOGImage(artDoc, link.url); ogImage != "" {
+		newsItem.ArticleImageUrl = ogImage
+	}
+
 	if artDoc != nil && summarizer != nil {
 		summary, err := summarizer.Summarize(artDoc.Text())
 		if err != nil {
