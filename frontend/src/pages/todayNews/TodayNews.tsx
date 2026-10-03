@@ -1,7 +1,16 @@
-import { Alert, Box, CircularProgress, IconButton, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Divider,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { Masonry } from "@mui/lab";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import { MainArticle } from "../../share-components/article/MainArticle";
 import { News } from "../../types/news";
 import { useEffect, useState } from "react";
@@ -147,9 +156,24 @@ export function TodayNews() {
         )}
         {!isLoading && pickupNews.length > 0 && (
           <Box sx={{ marginBottom: "2rem" }}>
-            <Typography variant="h6" sx={{ marginBottom: "0.5rem" }}>
-              ピックアップ
-            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                marginBottom: "0.75rem",
+                color: "common.white",
+              }}
+            >
+              <LocalFireDepartmentIcon />
+              <Typography
+                variant="h6"
+                component="h2"
+                sx={{ fontSize: "1rem", fontWeight: "bold", letterSpacing: "0.1em" }}
+              >
+                ピックアップ
+              </Typography>
+            </Box>
             <Masonry
               columns={{ xs: 1, sm: 2, md: 3 }}
               spacing={{ xs: 1, sm: 1, md: 1 }}
@@ -163,6 +187,18 @@ export function TodayNews() {
               ))}
             </Masonry>
           </Box>
+        )}
+        {!isLoading && pickupNews.length > 0 && otherNews.length > 0 && (
+          <Divider
+            textAlign="center"
+            sx={{
+              marginBottom: "1.5rem",
+              color: "common.white",
+              "&::before, &::after": { borderColor: "common.white" },
+            }}
+          >
+            <FiberManualRecordIcon sx={{ fontSize: "0.7rem" }} />
+          </Divider>
         )}
         {!isLoading && otherNews.length > 0 && (
           <Masonry
