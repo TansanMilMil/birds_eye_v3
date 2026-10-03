@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { MuiTheme } from "./mui-theme";
 import { RootState } from "./app/store";
+import { ScrollToTopButton } from "./share-components/scroll/ScrollToTopButton";
 
 export function App() {
   const navigate = useNavigate();
@@ -87,6 +88,8 @@ export function App() {
               value="/trends"
             />
           </BottomNavigation>
+
+          <ScrollToTopButton />
         </div>
       </Box>
     </ThemeProvider>
