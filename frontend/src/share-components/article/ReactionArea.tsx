@@ -5,6 +5,7 @@ import { BirdsEyeApi } from "../../api/birdsEyeApi";
 import { NewsReaction } from "../../types/newsReaction";
 import { Reaction } from "./Reaction";
 import CommentIcon from "@mui/icons-material/Comment";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Badge,
   Button,
@@ -56,19 +57,32 @@ export function ReactionArea({ news, reactionCount }: Props) {
     setToggle(false);
   };
 
+  const realtimeSearchUrl = `https://search.yahoo.co.jp/realtime/search?p=${encodeURIComponent(
+    news.articleUrl
+  )}&ei=UTF-8&ifr=tp_sc`;
+
   return (
     <div>
-      <div>
-        {reactionCount >= 1 && (
-          <Box sx={{ textAlign: "right", marginTop: "0.5rem" }}>
-            <IconButton onClick={getReactions}>
-              <Badge badgeContent={reactionCount} color="secondary">
-                <CommentIcon />
-              </Badge>
-            </IconButton>
-          </Box>
-        )}
-      </div>
+      <Box sx={{ textAlign: "right", marginTop: "0.5rem" }}>
+        <IconButton
+          onClick={getReactions}
+          disabled={reactionCount < 1}
+          sx={{ "&.Mui-disabled": { opacity: 0.4 } }}
+        >
+          <Badge badgeContent={reactionCount} color="secondary">
+            <CommentIcon />
+          </Badge>
+        </IconButton>
+        <IconButton
+          component="a"
+          href={realtimeSearchUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Yahooリアルタイム検索でXの投稿を探す"
+        >
+          <SearchIcon />
+        </IconButton>
+      </Box>
       {toggle && (
         <div>
           <Dialog
