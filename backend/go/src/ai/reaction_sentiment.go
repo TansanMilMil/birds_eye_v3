@@ -28,6 +28,10 @@ type reactionState struct {
 	Comments     map[string]string `json:"comments"`
 }
 
+func commentKey(i int) string {
+	return fmt.Sprintf("c%d", i)
+}
+
 type JevReactionSentimentAnalyzer struct {
 	client jevClient
 }
@@ -45,7 +49,7 @@ func (a *JevReactionSentimentAnalyzer) Analyze(articleTitle string, comments []s
 		questions := map[string]jevQuestion{}
 
 		for i, comment := range comments[start:end] {
-			key := fmt.Sprintf("c%d", i)
+			key := commentKey(i)
 			state.Comments[key] = comment
 			questions[key] = jevQuestion{
 				Type:         "score",

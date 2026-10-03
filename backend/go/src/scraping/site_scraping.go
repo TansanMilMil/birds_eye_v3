@@ -3,6 +3,8 @@ package scraping
 import (
 	"fmt"
 	"net/url"
+	"regexp"
+	"strings"
 
 	"github.com/birdseyeapi/birds_eye_v3/go/src/ai"
 	"github.com/birdseyeapi/birds_eye_v3/go/src/models"
@@ -16,7 +18,10 @@ type SiteScraping struct {
 	reactionScrapers  []reaction.ScrapingReaction
 	articleAnalyzer   ai.ArticleAnalyzer
 	sentimentAnalyzer ai.ReactionSentimentAnalyzer
+	opinionClassifier ai.ReactionOpinionClassifier
 }
+
+var urlPattern = regexp.MustCompile(`https?://\S+`)
 
 func NewSiteScraping() *SiteScraping {
 	summarizer := ai.NewOpenAISummarizer()
@@ -34,6 +39,7 @@ func NewSiteScraping() *SiteScraping {
 		},
 		articleAnalyzer:   ai.NewJevArticleAnalyzer(),
 		sentimentAnalyzer: ai.NewJevReactionSentimentAnalyzer(),
+		opinionClassifier: ai.NewJevReactionOpinionClassifier(),
 	}
 }
 
@@ -125,7 +131,57 @@ func (s *SiteScraping) ScrapeReactions(driver selenium.WebDriver, news models.Ne
 		allReactions = append(allReactions, reactions...)
 	}
 
-	return allReactions, nil
+	return s.filterOpinionReactions(news.Title, allReactions), nil
+}
+
+// filterOpinionReactions drops reactions that only share the article (title,
+// URL, retweet) without the writer's own opinion.
+func (s *SiteScraping) filterOpinionReactions(title string, reactions []models.NewsReaction) []models.NewsReaction {
+	filtered := s.dropReactionsWithoutOpinion(title, dropShareOnlyReactions(title, reactions))
+	fmt.Printf(" -> reactions with opinion: %d/%d\n", len(filtered), len(reactions))
+	return filtered
+}
+
+func dropShareOnlyReactions(title string, reactions []models.NewsReaction) []models.NewsReaction {
+	kept := []models.NewsReaction{}
+	for _, r := range reactions {
+		if !isShareOnly(r.Comment, title) {
+			kept = append(kept, r)
+		}
+	}
+	return kept
+}
+
+func isShareOnly(comment, title string) bool {
+	rest := strings.TrimSpace(urlPattern.ReplaceAllString(comment, ""))
+	return rest == "" || rest == strings.TrimSpace(title)
+}
+
+// dropReactionsWithoutOpinion keeps every reaction when classification is
+// unavailable so that a Jev outage does not wipe out reactions.
+func (s *SiteScraping) dropReactionsWithoutOpinion(title string, reactions []models.NewsReaction) []models.NewsReaction {
+	if s.opinionClassifier == nil || len(reactions) == 0 {
+		return reactions
+	}
+
+	comments := make([]string, len(reactions))
+	for i, r := range reactions {
+		comments[i] = r.Comment
+	}
+
+	hasOpinion, err := s.opinionClassifier.HasOpinion(title, comments)
+	if err != nil {
+		fmt.Printf("Failed to classify reaction opinions of %q: %v\n", title, err)
+		return reactions
+	}
+
+	kept := []models.NewsReaction{}
+	for i, r := range reactions {
+		if hasOpinion[i] {
+			kept = append(kept, r)
+		}
+	}
+	return kept
 }
 
 // safeExtractNews runs a single news scraper, converting any panic into an

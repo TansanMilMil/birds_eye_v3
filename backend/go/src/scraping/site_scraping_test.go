@@ -104,3 +104,94 @@ func TestAnalyzeReactionSentiment_SkipsWhenNotAnalyzable(t *testing.T) {
 		})
 	}
 }
+
+type fakeOpinionClassifier struct {
+	opinions map[string]bool
+	err      error
+	received []string
+}
+
+func (f *fakeOpinionClassifier) HasOpinion(articleTitle string, comments []string) ([]bool, error) {
+	f.received = comments
+	if f.err != nil {
+		return nil, f.err
+	}
+	result := make([]bool, len(comments))
+	for i, c := range comments {
+		result[i] = f.opinions[c]
+	}
+	return result, nil
+}
+
+func reactionComments(reactions []models.NewsReaction) []string {
+	comments := []string{}
+	for _, r := range reactions {
+		comments = append(comments, r.Comment)
+	}
+	return comments
+}
+
+func TestFilterOpinionReactions(t *testing.T) {
+	fake := &fakeOpinionClassifier{opinions: map[string]bool{
+		"これは便利そう https://example.com": true,
+		"記事を読んだ":                      false,
+	}}
+	s := &SiteScraping{opinionClassifier: fake}
+	reactions := []models.NewsReaction{
+		{Comment: "https://example.com/a"},
+		{Comment: "タイトル https://example.com/a"},
+		{Comment: "これは便利そう https://example.com"},
+		{Comment: "記事を読んだ"},
+	}
+
+	got := s.filterOpinionReactions("タイトル", reactions)
+
+	if want := []string{"これは便利そう https://example.com"}; !reflect.DeepEqual(reactionComments(got), want) {
+		t.Errorf("Expected %v, got %v", want, reactionComments(got))
+	}
+	if want := []string{"これは便利そう https://example.com", "記事を読んだ"}; !reflect.DeepEqual(fake.received, want) {
+		t.Errorf("Expected only URL/title-free comments sent to classifier, got %v", fake.received)
+	}
+}
+
+func TestFilterOpinionReactions_KeepsCandidatesWhenNotClassifiable(t *testing.T) {
+	cases := map[string]ai.ReactionOpinionClassifier{
+		"nil classifier":   nil,
+		"classifier error": &fakeOpinionClassifier{err: errors.New("x")},
+	}
+
+	for name, classifier := range cases {
+		t.Run(name, func(t *testing.T) {
+			s := &SiteScraping{opinionClassifier: classifier}
+			reactions := []models.NewsReaction{{Comment: "https://example.com"}, {Comment: "良い"}}
+
+			got := s.filterOpinionReactions("t", reactions)
+
+			if want := []string{"良い"}; !reflect.DeepEqual(reactionComments(got), want) {
+				t.Errorf("Expected %v, got %v", want, reactionComments(got))
+			}
+		})
+	}
+}
+
+func TestIsShareOnly(t *testing.T) {
+	cases := map[string]struct {
+		comment string
+		want    bool
+	}{
+		"url only":           {"https://example.com/a", true},
+		"title and url":      {"タイトル https://example.com/a", true},
+		"title with spaces":  {"  タイトル  ", true},
+		"opinion with url":   {"便利そう https://example.com/a", false},
+		"opinion only":       {"便利そう", false},
+		"title with opinion": {"タイトル 便利そう", false},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if got := isShareOnly(tc.comment, "タイトル"); got != tc.want {
+				t.Errorf("Expected %v, got %v", tc.want, got)
+			}
+		})
+	}
+}
