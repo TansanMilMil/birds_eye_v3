@@ -9,7 +9,9 @@ import title from "./images/logo.png";
 import { useEffect, useState } from "react";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import BubbleChartIcon from "@mui/icons-material/BubbleChart";
+import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import { Trends } from "./pages/trends/Trends";
+import { Bookmarks } from "./pages/bookmarks/Bookmarks";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import styles from "./App.module.css";
@@ -47,6 +49,7 @@ export function App() {
             <Route path="/" element={<Navigate to="/news" replace />} />
             <Route path="/news" element={<TodayNews></TodayNews>} />
             <Route path="/trends" element={<Trends></Trends>} />
+            <Route path="/bookmarks" element={<Bookmarks></Bookmarks>} />
           </Routes>
 
           <div className={styles.credit}>
@@ -86,6 +89,11 @@ export function App() {
               label="Trends"
               icon={<BubbleChartIcon />}
               value="/trends"
+            />
+            <BottomNavigationAction
+              label="Bookmarks"
+              icon={<BookmarksIcon />}
+              value="/bookmarks"
             />
           </BottomNavigation>
 

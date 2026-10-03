@@ -6,6 +6,8 @@ import { NewsReaction } from "../../types/newsReaction";
 import { Reaction } from "./Reaction";
 import CommentIcon from "@mui/icons-material/Comment";
 import SearchIcon from "@mui/icons-material/Search";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import {
   Badge,
   Button,
@@ -18,6 +20,7 @@ import {
 } from "@mui/material";
 import styles from "./ReactionArea.module.css";
 import { News } from "../../types/news";
+import { useBookmarks } from "../../hooks/useBookmarks";
 
 type Props = {
   news: News;
@@ -28,6 +31,8 @@ export function ReactionArea({ news, reactionCount }: Props) {
   const [reactions, setReactions] = useState<NewsReaction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [toggle, setToggle] = useState<boolean>(false);
+  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const bookmarked = isBookmarked(news.articleUrl);
 
   const getReactions = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
@@ -81,6 +86,14 @@ export function ReactionArea({ news, reactionCount }: Props) {
           aria-label="Yahooリアルタイム検索でXの投稿を探す"
         >
           <SearchIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => toggleBookmark(news)}
+          color={bookmarked ? "primary" : "default"}
+          aria-pressed={bookmarked}
+          aria-label={bookmarked ? "ブックマークを解除" : "後で読むに追加"}
+        >
+          {bookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
         </IconButton>
       </Box>
       {toggle && (
