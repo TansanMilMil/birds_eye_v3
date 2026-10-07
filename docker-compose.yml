@@ -104,7 +104,7 @@ services:
       app_name: "selenium"
 
   ofelia:
-    image: mcuadros/ofelia:latest
+    image: mcuadros/ofelia:0.3.22
     container_name: birds_eye_ofelia
     depends_on:
       - go

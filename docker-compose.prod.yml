@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: nginx:1.31.2
+    image: nginx:1.31.6
     container_name: birds_eye_nginx
     mem_limit: 64m
     volumes:
@@ -63,7 +63,7 @@ services:
       ofelia.job-exec.scrape-news.command: "curl -X POST http://localhost:8080/news/scrape"
 
   selenium:
-    image: selenium/standalone-firefox:133.0
+    image: selenium/standalone-firefox:133.0.3-20260909
     container_name: birds_eye_selenium
     ports:
       - 4444:4444
@@ -83,7 +83,7 @@ services:
       app_name: "selenium"
 
   ofelia:
-    image: mcuadros/ofelia:latest
+    image: mcuadros/ofelia:0.3.22
     container_name: birds_eye_ofelia
     depends_on:
       - go

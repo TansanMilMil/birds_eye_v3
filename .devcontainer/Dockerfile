@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/go:1.24
+FROM mcr.microsoft.com/devcontainers/go:1.26
 
 # Remove the broken yarn apt repository (GPG key expired)
 RUN rm -f /etc/apt/sources.list.d/yarn.list \
