@@ -1,3 +1,10 @@
+map_hash_bucket_size 128;
+
+map $http_x_cloudfront_secret $cloudfront_blocked {
+    default                           1;
+    "${BIRDSEYE_CLOUDFRONT_SECRET}"   0;
+}
+
 server {
     listen 80 default_server;
     server_name _;
@@ -21,8 +28,18 @@ server {
         limit_except GET { deny all; }
     }
 
+    # Scraping is triggered only by ofelia inside the go container
+    location ^~ /api/news/scrape {
+        return 404;
+    }
+
     # API proxy
     location /api/ {
+        if ($cloudfront_blocked) {
+            return 403;
+        }
+
+        proxy_set_header X-CloudFront-Secret "";
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-Host $host;
@@ -41,6 +58,10 @@ server {
 
     # Static files (SPA fallback)
     location / {
+        if ($cloudfront_blocked) {
+            return 403;
+        }
+
         try_files $uri $uri/ /index.html;
     }
 

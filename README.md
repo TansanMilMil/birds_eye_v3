@@ -108,7 +108,8 @@ birds_eye_v3/
 │   └── scrape.sh          # リモートスクレイプトリガー
 ├── nginx/
 │   ├── nginx.conf
-│   └── conf.d/default.conf
+│   ├── entrypoint.sh
+│   └── conf.d/default.conf.template
 ├── mysql/
 │   └── create_db.sql      # DB 初期化 SQL
 ├── docker-compose.yml

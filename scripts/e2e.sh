@@ -113,7 +113,7 @@ poll_http() {
     echo ""
     echo "==== wait HTTP: ${desc} (${url}) ===="
     for attempt in $(seq 1 "$max_attempts"); do
-        if body="$(curl -fsS "$url" 2>/dev/null)"; then
+        if body="$(curl -fsS -H "X-CloudFront-Secret: ${BIRDSEYE_CLOUDFRONT_SECRET:-}" "$url" 2>/dev/null)"; then
             # 第3引数があれば本文を検証 (HealthCheck の 'ok' 等)
             if [ "$#" -lt 3 ] || echo "$body" | eval "$3"; then
                 echo "  [OK]   ${desc} 疎通 (attempt ${attempt}/${max_attempts})"

@@ -9,7 +9,7 @@ fi
 
 echo "----------------------------------------"
 if [[ "${1:-}" == "--prod" ]]; then
-    ssh $VENUS_SSH_HOST curl -v -X POST localhost:1111/news/scrape | jq .
+    ssh $VENUS_SSH_HOST docker exec birds_eye_go curl -sS -X POST localhost:8080/news/scrape | jq .
 else
-    curl -v -X POST localhost/api/news/scrape | jq .
+    docker compose exec go curl -sS -X POST localhost:8080/news/scrape | jq .
 fi
