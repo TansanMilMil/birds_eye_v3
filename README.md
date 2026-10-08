@@ -160,7 +160,8 @@ docker compose logs -f
 | `BIRDSEYE_BIRDSEYEAPI_V2_CLAUDE_API_KEY` | Claude API キー（要約用） |
 | `BIRDSEYE_TYPESAFE_API_KEY` | TypeSafe AI (Jev) API キー（カテゴリ分類用） |
 | `BIRDSEYE_AWS_REGION` | AWS リージョン |
-| `BIRDSEYE_AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID` | CloudFront ディストリビューション ID |
+| `BIRDSEYE_AWS_CLOUDFRONT_BIRDSEYEAPIPROXY_DISTRIBUTION_ID` | キャッシュ無効化の対象ディストリビューション ID（birdseyeapiproxy は削除済みで、現在は存在しない） |
+| `BIRDSEYE_CLOUDFRONT_SECRET` | CloudFront オリジン保護用シークレット（未設定、または英数字・`_`・`-` 以外を含むと Nginx が起動しない） |
 | `BIRDSEYE_BIRDSEYEAPI_EXECUTION_MODE` | `PRODUCTION` で本番バイナリを実行、それ以外は開発シェル |
 | `BIRDSEYE_VITE_BIRDS_EYE_API_ENDPOINT` | フロントエンドから叩く API エンドポイント URL |
 | `BIRDSEYE_SCRAPING_ARTICLES` | スクレイプする記事数（デフォルト 10） |
@@ -186,6 +187,23 @@ cd backend
 # VENUS_SSH_HOST が .env に設定されている必要がある
 ```
 
+### 本番環境の構成
+
+コードからは分からない本番の設定（2026-10-09 時点）。
+
+- サーバーはさくらのVPS `venus`。nina-njaa・uwabami・wp-kimagure と同じホストで動いている
+- 本番の環境変数は venus の `~/.env` にまとめてある。SSHログイン時に読み込まれ、`docker compose` はその値を使う。変数を追加・変更するときは venus の `~/.env` を編集する
+- `task deploy` はパッケージを作って scp し、コンテナを起動し直す。イメージは作り直さない
+- 外部から届くのは、さくらのパケットフィルタで許可したポートだけ。Dockerの `ports` はfirewalldを通らないため、新しくポートを公開するときはパケットフィルタの設定も変える
+- CloudFront の設定
+
+| 項目 | 設定 |
+|---|---|
+| ドメイン | `birds-eye.ts-soda.net` |
+| オリジン | venus の 8082 番。CloudFrontとオリジンの間はHTTP（TLSはCloudFrontで終端） |
+| カスタムヘッダー | `X-CloudFront-Secret`。値は venus の `BIRDSEYE_CLOUDFRONT_SECRET` と一致させる |
+| ビヘイビア | 旧API（birdseyeapi_v2）向けのビヘイビア（`/news/today-news` など）が残っているが使っていない |
+
 ---
 
 ## API エンドポイント
@@ -194,7 +212,7 @@ cd backend
 |---|---|---|
 | GET | `/api/news/:target_date` | 指定日付（YYYY-MM-DD）のニュース一覧 |
 | GET | `/api/news/news-reactions/:news-id` | 指定記事の Hatena Bookmark 反応 |
-| POST | `/api/news/scrape` | ニュース・反応のスクレイプ実行（多重実行は 409） |
+| POST | `/api/news/scrape` | ニュース・反応のスクレイプ実行（多重実行は 409）。Nginx が 404 を返すので外部からは呼べない。ofelia が go コンテナ内から `localhost:8080/news/scrape` を叩く |
 | GET | `/api/news/trends` | Google Trends のトレンドワード |
 | GET | `/HealthCheck` | Nginx が直接 200 を返すヘルスチェック |
 
