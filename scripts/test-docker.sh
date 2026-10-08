@@ -11,7 +11,7 @@ fi
 
 echo "==== Docker compose setup ===="
 docker compose down
-docker compose up -d go
+docker compose up -d --build go
 echo "==== Run all tests ===="
 docker compose exec go ./test.sh
 docker compose down

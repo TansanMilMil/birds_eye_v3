@@ -55,7 +55,7 @@ services:
     ports:
       - 8080:8080
     tty: true
-    mem_limit: 512m
+    mem_limit: 2g
     volumes:
       - ./backend:/project
       - db-store:/data
