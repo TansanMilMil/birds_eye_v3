@@ -11,7 +11,7 @@ rsync -a --ignore-missing-args ./backend/Dockerfile.prod ./backend/deploy-temp/b
 rsync -a --ignore-missing-args ./docker-compose.prod.yml ./backend/deploy-temp/docker-compose.yml
 rsync -a --ignore-missing-args ./frontend/dist ./backend/deploy-temp/frontend/
 rsync -a --ignore-missing-args ./backend/init_db.sh ./backend/deploy-temp/
-rsync -a --ignore-missing-args ./nginx ./backend/deploy-temp/
+rsync -a --ignore-missing-args --exclude='/nginx/log/' ./nginx ./backend/deploy-temp/
 tar czf ./backend/deploy.tgz -C ./backend/deploy-temp .
 rm -rf ./backend/deploy-temp
 echo "Package created deploy.tgz"

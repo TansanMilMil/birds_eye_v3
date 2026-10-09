@@ -5,12 +5,46 @@ map $http_x_cloudfront_secret $cloudfront_blocked {
     "${BIRDSEYE_CLOUDFRONT_SECRET}"   0;
 }
 
+map $cloudfront_blocked $cloudfront_ok {
+    0       1;
+    default 0;
+}
+
+map $http_cloudfront_viewer_address $cloudfront_viewer_ip {
+    default                                    "";
+    "~^(?<viewer_ip>[0-9A-Fa-f.:]+):[0-9]+$"   $viewer_ip;
+}
+
+# CloudFront-Viewer-Address is spoofable on direct access, so trust it only when the secret matches
+map "$cloudfront_blocked:$cloudfront_viewer_ip" $client_ip {
+    "~^0:(?<trusted_viewer_ip>.+)$"   $trusted_viewer_ip;
+    default                           $remote_addr;
+}
+
+geo $client_ip $ioc_ip_blocked {
+    default 0;
+    include /etc/nginx/blocklist/ioc_ip.conf;
+}
+
+map $http_user_agent $ioc_ua_blocked {
+    default 0;
+    include /etc/nginx/blocklist/ioc_ua.conf;
+}
+
 server {
     listen 80 default_server;
     server_name _;
 
     root /var/www/html;
     index index.html;
+
+    if ($ioc_ip_blocked) {
+        return 403;
+    }
+
+    if ($ioc_ua_blocked) {
+        return 403;
+    }
 
     # Limit allowed methods
     if ($request_method !~ ^(GET|POST|PUT|DELETE|HEAD|OPTIONS)$) {
@@ -68,7 +102,6 @@ server {
     # Deny access to hidden files
     location ~ /\. {
         deny all;
-        access_log off;
         log_not_found off;
         return 404;
     }

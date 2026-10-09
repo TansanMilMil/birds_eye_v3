@@ -194,6 +194,8 @@ cd backend
 - サーバーはさくらのVPS `venus`。nina-njaa・uwabami・wp-kimagure と同じホストで動いている
 - 本番の環境変数は venus の `~/.env` にまとめてある。SSHログイン時に読み込まれ、`docker compose` はその値を使う。変数を追加・変更するときは venus の `~/.env` を編集する
 - `task deploy` はパッケージを作って scp し、コンテナを起動し直す。イメージは作り直さない
+- nginxのログは `nginx/log/` に出る。secretが一致したCloudFront経由のリクエストは `access.log`、それ以外の直接アクセスは `direct.log`。先頭のIPは、secretが一致したときだけ `CloudFront-Viewer-Address` から取った利用者のIP、それ以外は接続元のIP。ローテートは venus の `/etc/logrotate.d/venus-nginx`（`venus-monitoring` で管理）
+- 遮断リスト（JPCERTのIoCなど）は、venus の `~/.env` の `VENUS_NGINX_BLOCKLIST_DIR`（`/home/alma/venus-monitoring/nginx-blocklist`）を `/etc/nginx/blocklist` にマウントして読む。未設定だとリポジトリ内の空のリストが使われ、何も遮断しない
 - 外部から届くのは、さくらのパケットフィルタで許可したポートだけ。Dockerの `ports` はfirewalldを通らないため、新しくポートを公開するときはパケットフィルタの設定も変える
 - CloudFront の設定
 
@@ -202,6 +204,7 @@ cd backend
 | ドメイン | `birds-eye.ts-soda.net` |
 | オリジン | venus の 8082 番。CloudFrontとオリジンの間はHTTP（TLSはCloudFrontで終端） |
 | カスタムヘッダー | `X-CloudFront-Secret`。値は venus の `BIRDSEYE_CLOUDFRONT_SECRET` と一致させる |
+| オリジンリクエストポリシー | 利用者のIPを取るため `CloudFront-Viewer-Address` を転送する必要がある（`AllViewerAndCloudFrontHeaders-2022-06`）。2026-10-09 時点では `AllViewer` で転送していない |
 | ビヘイビア | 旧API（birdseyeapi_v2）向けのビヘイビア（`/news/today-news` など）が残っているが使っていない |
 
 ---
