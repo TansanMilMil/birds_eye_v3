@@ -9,6 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const sqliteDateTimeLayout = "2006-01-02 15:04:05"
+
 type NewsRepository struct {
 	db *gorm.DB
 }
@@ -19,11 +21,16 @@ func NewNewsRepository(db *gorm.DB) *NewsRepository {
 	}
 }
 
+// GetNews returns news created on the day starting at t, in t's location.
 func (n *NewsRepository) GetNews(t time.Time, c *gin.Context) []models.News {
 	var news []models.News
 
+	// datetime() normalizes stored values with any UTC offset to UTC, so the bounds must be UTC too.
+	start := t.UTC().Format(sqliteDateTimeLayout)
+	end := t.AddDate(0, 0, 1).UTC().Format(sqliteDateTimeLayout)
+
 	result := n.db.
-		Where("DATE(created_at) = DATE(?)", t).
+		Where("datetime(created_at) >= ? AND datetime(created_at) < ?", start, end).
 		Limit(100).
 		Preload("Reactions").
 		Find(&news)

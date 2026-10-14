@@ -26,6 +26,14 @@ const toDateKey = (date: Date): string => {
   return `${date.getFullYear()}-${month}-${day}`;
 };
 
+const toStartOfDayDateTime = (date: Date): string => {
+  const offsetMinutes = -date.getTimezoneOffset();
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
+  const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
+  return `${toDateKey(date)}T00:00:00${sign}${hours}:${minutes}`;
+};
+
 const getToday = (): Date => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -39,7 +47,7 @@ const shiftDate = (date: Date, days: number): Date => {
 };
 
 const fetchNews = async (date: Date): Promise<News[]> => {
-  const result = await BirdsEyeApi.getTodayNews(toDateKey(date));
+  const result = await BirdsEyeApi.getTodayNews(toStartOfDayDateTime(date));
   return result.news.map((news) => {
     news.scrapedDateTime = new Date(
       Date.parse(news.scrapedDateTime)

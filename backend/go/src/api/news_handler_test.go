@@ -174,3 +174,56 @@ func TestGetNewsByDate_SortedByImportance(t *testing.T) {
 		}
 	}
 }
+
+type capturingNewsRepository struct {
+	target time.Time
+}
+
+func (m *capturingNewsRepository) GetNews(t time.Time, c *gin.Context) []models.News {
+	m.target = t
+	return nil
+}
+
+func TestGetNewsByDate_TargetDateFormat(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want string
+	}{
+		{name: "offset date-time", path: "/news/2026-10-14T00:00:00-04:00", want: "2026-10-14T00:00:00-04:00"},
+		{name: "percent-encoded offset date-time", path: "/news/2026-10-14T00%3A00%3A00%2B09%3A00", want: "2026-10-14T00:00:00+09:00"},
+		{name: "UTC date-time", path: "/news/2026-10-14T00:00:00Z", want: "2026-10-14T00:00:00Z"},
+		{name: "legacy date-only defaults to JST", path: "/news/2026-10-14", want: "2026-10-14T00:00:00+09:00"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gin.SetMode(gin.TestMode)
+			repo := &capturingNewsRepository{}
+			handler := &NewsHandler{newsRepo: repo}
+			w := httptest.NewRecorder()
+			_, r := gin.CreateTestContext(w)
+			r.GET("/news/:target_date", handler.GetNewsByDate)
+			r.ServeHTTP(w, httptest.NewRequest("GET", tt.path, nil))
+
+			if w.Code != http.StatusOK {
+				t.Fatalf("Expected status 200, got %d", w.Code)
+			}
+			if got := repo.target.Format(time.RFC3339); got != tt.want {
+				t.Errorf("Expected target %s, got %s", tt.want, got)
+			}
+		})
+	}
+}
+
+func TestGetNewsByDate_DateTimeWithoutOffset(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	handler := &NewsHandler{newsRepo: &capturingNewsRepository{}}
+	w := httptest.NewRecorder()
+	_, r := gin.CreateTestContext(w)
+	r.GET("/news/:target_date", handler.GetNewsByDate)
+	r.ServeHTTP(w, httptest.NewRequest("GET", "/news/2026-10-14T00:00:00", nil))
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", w.Code)
+	}
+}

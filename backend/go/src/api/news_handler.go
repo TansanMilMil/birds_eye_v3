@@ -16,6 +16,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// Fallback for date-only target_date sent by FE bundles older than the offset format.
+var legacyTargetDateLocation = time.FixedZone("JST", 9*60*60)
+
 type NewsRepositoryInterface interface {
 	GetNews(t time.Time, c *gin.Context) []models.News
 }
@@ -39,11 +42,10 @@ func NewNewsHandler(db *gorm.DB) *NewsHandler {
 }
 
 func (h *NewsHandler) GetNewsByDate(c *gin.Context) {
-	targetDateStr := c.Param("target_date")
-	targetDate, err := time.Parse("2006-01-02", targetDateStr)
+	targetDate, err := parseTargetDate(c.Param("target_date"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid target_date format, expected YYYY-MM-DD",
+			"error": "invalid target_date format, expected RFC 3339 date-time with offset (e.g. 2026-10-14T00:00:00+09:00)",
 		})
 		return
 	}
@@ -64,6 +66,13 @@ func (h *NewsHandler) GetNewsByDate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"news": newsResponses,
 	})
+}
+
+func parseTargetDate(s string) (time.Time, error) {
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t, nil
+	}
+	return time.ParseInLocation("2006-01-02", s, legacyTargetDateLocation)
 }
 
 func (h *NewsHandler) GetNewsReactionsById(c *gin.Context) {

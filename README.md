@@ -213,7 +213,7 @@ cd backend
 
 | メソッド | パス | 説明 |
 |---|---|---|
-| GET | `/api/news/:target_date` | 指定日付（YYYY-MM-DD）のニュース一覧 |
+| GET | `/api/news/:target_date` | 指定日のニュース一覧。`target_date` はその日の 0 時をオフセット付きで表した RFC 3339 日時（例 `2026-10-14T00:00:00+09:00`）で、そこから 24 時間に作成された記事を返す。`YYYY-MM-DD` も旧 FE 互換のため受け付け、JST として扱う |
 | GET | `/api/news/news-reactions/:news-id` | 指定記事の Hatena Bookmark 反応 |
 | POST | `/api/news/scrape` | ニュース・反応のスクレイプ実行（多重実行は 409）。Nginx が 404 を返すので外部からは呼べない。ofelia が go コンテナ内から `localhost:8080/news/scrape` を叩く |
 | GET | `/api/news/trends` | Google Trends のトレンドワード |
