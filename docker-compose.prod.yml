@@ -35,7 +35,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: birds_eye_go
     ports:
-      - 8080:8080
+      - 127.0.0.1:8080:8080
     tty: true
     mem_limit: 512m
     volumes:
