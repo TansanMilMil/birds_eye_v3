@@ -40,3 +40,13 @@ func (n *NewsRepository) GetNews(t time.Time, c *gin.Context) []models.News {
 	}
 	return news
 }
+
+func (n *NewsRepository) GetLatestNews(limit int) ([]models.News, error) {
+	var news []models.News
+	result := n.db.
+		Order("datetime(created_at) DESC").
+		Order("id DESC").
+		Limit(limit).
+		Find(&news)
+	return news, result.Error
+}

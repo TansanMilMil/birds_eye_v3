@@ -82,6 +82,43 @@ func TestGetNews_UsesDayBoundaryOfTargetLocation(t *testing.T) {
 	}
 }
 
+func TestGetLatestNews_OrdersByCreatedAtDescAndLimits(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.AutoMigrate(&models.News{}, &models.NewsReaction{}); err != nil {
+		t.Fatal(err)
+	}
+
+	tokyo := mustLoadLocation(t, "Asia/Tokyo")
+	fixtures := map[string]time.Time{
+		"oldest":       time.Date(2026, 10, 15, 3, 0, 0, 0, time.UTC),
+		"middle-tokyo": time.Date(2026, 10, 16, 9, 0, 0, 0, tokyo),
+		"newest":       time.Date(2026, 10, 16, 1, 0, 0, 0, time.UTC),
+	}
+	for title, createdAt := range fixtures {
+		if err := db.Create(&models.News{Title: title, CreatedAt: createdAt}).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	news, err := NewNewsRepository(db).GetLatestNews(2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := []string{"newest", "middle-tokyo"}
+	if len(news) != len(want) {
+		t.Fatalf("expected %v, got %d items", want, len(news))
+	}
+	for i := range want {
+		if news[i].Title != want[i] {
+			t.Fatalf("expected %v at %d, got %s", want[i], i, news[i].Title)
+		}
+	}
+}
+
 func mustLoadLocation(t *testing.T, name string) *time.Location {
 	t.Helper()
 	loc, err := time.LoadLocation(name)

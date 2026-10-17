@@ -8,6 +8,7 @@ import (
 func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	newsHandler := NewNewsHandler(db)
 	trendHandler := NewTrendHandler()
+	feedHandler := NewFeedHandler(db)
 
 	newsRoutes := r.Group("/news")
 	{
@@ -16,5 +17,6 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		newsRoutes.POST("/scrape", newsHandler.Scrape)
 
 		newsRoutes.GET("/trends", trendHandler.GetTrends)
+		newsRoutes.GET("/rss", feedHandler.GetRSS)
 	}
 }
