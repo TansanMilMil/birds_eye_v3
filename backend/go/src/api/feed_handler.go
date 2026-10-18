@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const feedItemLimit = 50
+const feedItemLimit = 5
 
 var siteURL = os.Getenv("BIRDSEYE_SITE_URL")
 
