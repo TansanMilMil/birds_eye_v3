@@ -80,10 +80,10 @@ POST /api/news/scrape → Go → Selenium(Firefox) → 各ニュースサイト
 
 | サービス | イメージ | ホストポート | 役割 |
 |---|---|---|---|
-| nginx | nginx:1.31.6 | 8082 | リバースプロキシ・静的ファイル配信 |
-| go | golang:1.26 | 8080 | Gin API サーバー |
+| nginx | nginx:1.31.7 | 8082 | リバースプロキシ・静的ファイル配信 |
+| go | golang:1.27 | 8080 | Gin API サーバー |
 | mysql | mysql:9.3 | 3307 | データ永続化 |
-| selenium | selenium/standalone-firefox:133.0.3-20260909 | 4444 | ヘッドレス Firefox（スクレイピング用） |
+| selenium | selenium/standalone-firefox:157.0.1-20261010 | 4444 | ヘッドレス Firefox（スクレイピング用） |
 | frontend | (カスタム) | — | Vite ビルドワーカー（静的ファイル生成のみ） |
 
 ---
@@ -237,7 +237,7 @@ cd backend
 | レイヤー | 技術 |
 |---|---|
 | フロントエンド | React 18 / TypeScript / Vite / MUI / Redux Toolkit |
-| バックエンド | Go 1.24 / Gin |
+| バックエンド | Go 1.27 / Gin |
 | データベース | MySQL 9.3 |
 | スクレイピング | Selenium (headless Firefox) |
 | リバースプロキシ | Nginx 1.31 |

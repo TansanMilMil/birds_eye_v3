@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: nginx:1.31.6
+    image: nginx:1.31.7
     container_name: birds_eye_nginx
     mem_limit: 64m
     entrypoint: ["/entrypoint.sh"]
@@ -70,7 +70,7 @@ services:
       ofelia.job-exec.scrape-news.command: "curl -X POST http://localhost:8080/news/scrape"
 
   selenium:
-    image: selenium/standalone-firefox:133.0.3-20260909
+    image: selenium/standalone-firefox:157.0.1-20261010
     container_name: birds_eye_selenium
     ports:
       - 127.0.0.1:4444:4444
