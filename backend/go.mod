@@ -1,6 +1,6 @@
 module github.com/birdseyeapi/birds_eye_v3
 
-go 1.27.0
+go 1.27.3
 
 require (
 	github.com/PuerkitoBio/goquery v1.13.0
