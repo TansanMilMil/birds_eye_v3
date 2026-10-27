@@ -1,0 +1,8 @@
+*
+!frontend
+!nginx
+frontend/node_modules
+frontend/dist
+frontend/build
+frontend/.vite
+nginx/log

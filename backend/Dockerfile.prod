@@ -1,3 +1,12 @@
+FROM golang:1.27.3-trixie AS build
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY go ./go
+RUN go build -o /out/birds_eye_v3 ./go/src/main.go
+
 FROM debian:trixie-slim
 RUN apt-get update && apt-get install -y ca-certificates curl sqlite3 && rm -rf /var/lib/apt/lists/*
 WORKDIR /project
+COPY --from=build /out/birds_eye_v3 ./birds_eye_v3
+CMD ["./birds_eye_v3"]

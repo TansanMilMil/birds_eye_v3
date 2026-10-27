@@ -45,54 +45,6 @@ tasks:
       - rm -rf ./frontend/dist
       - cd frontend && npm install && npm run build
 
-  package:
-    desc: Create deployment package
-    deps: [build, build-frontend]
-    cmds:
-      - ./scripts/package.sh
-
-  transfer:
-    desc: Transfer package to remote
-    deps: [package]
-    cmds:
-      - ./scripts/transfer.sh
-
-  stop-remote:
-    desc: Stop containers on remote
-    cmds:
-      - ./scripts/stop-remote.sh
-
-  start-remote:
-    desc: Start containers on remote
-    cmds:
-      - ./scripts/start-remote.sh
-
-  init-db:
-    desc: Initialize database on remote
-    deps: [start-remote]
-    vars:
-      TARGET_DIR: "{{.VENUS_HOME}}/birds_eye_v3"
-    cmds:
-      - echo "==== Initialize database ===="
-      - echo "Waiting for MySQL to start..."
-      - sleep 5
-      - ssh {{.VENUS_SSH_HOST}} {{.TARGET_DIR}}/init_db.sh
-
-  deploy:
-    desc: Full deployment (test + build + package + transfer + start)
-    deps: [package]
-    cmds:
-      - task: stop-remote
-      - task: transfer
-      - task: start-remote
-      - echo ""
-      - echo "==== Deploy finished! ===="
-      - echo ""
-      - echo "==== Health check ===="
-      - echo "Waiting for 20 seconds to get the latest status..."
-      - sleep 20
-      - task: check-remote-health
-
   check-remote-health:
     desc: Check remote health status
     cmds:
@@ -117,7 +69,5 @@ tasks:
     desc: Clean temporary files
     cmds:
       - echo "==== Clean temporary files ===="
-      - rm -rf ./backend/deploy-temp
-      - rm -f ./backend/deploy.tgz
       - docker compose down
       - echo "Cleanup complete"

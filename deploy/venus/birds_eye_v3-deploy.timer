@@ -1,0 +1,9 @@
+[Unit]
+Description=Poll GitHub for birds_eye_v3 deployments
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+
+[Install]
+WantedBy=timers.target

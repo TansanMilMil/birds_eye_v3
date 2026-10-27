@@ -170,13 +170,47 @@ docker compose logs -f
 
 ## 本番デプロイ
 
-### バイナリビルド
+main に push すると自動でデプロイされる。
+
+1. GitHub Actions（`.github/workflows/build-images.yml`）がバックエンドのテストを実行し、通れば `go` と `nginx`（フロントエンドのビルド結果を含む）のイメージをビルドして、コミットの SHA をタグに付けて GHCR に push する
+2. venus の systemd timer（`birds_eye_v3-deploy.timer`）が2分ごとに `deploy/venus/pull-deploy.sh` を実行する。`origin/main` が前回デプロイしたコミットと違えば、そのコミットに `git reset --hard` し、イメージを pull して `docker compose -f docker-compose.prod.yml up -d --no-build` で入れ替える
+3. イメージがまだ無い（ビルド中・ビルド失敗）コミットは、コードを元に戻して次の回に再試行する
+
+デプロイ済みのコミットは venus の `/home/alma/birds_eye_v3/.env` の `BIRDSEYE_IMAGE_TAG` に記録される。ログは `journalctl -u birds_eye_v3-deploy` で見る。
+
+イメージ名に付くタグは `BIRDSEYE_IMAGE_TAG` で決まり、未設定なら `local`。ローカルで `docker compose -f docker-compose.prod.yml build` すると `:local` としてビルドされる。
+
+### ロールバック
+
+venus で戻したいコミットを指定して入れ替える。main を戻さない限り、次に main が更新されたときに最新へ戻る。
 
 ```bash
-cd backend
-./build.sh
-# → go/dist/birds_eye_v3 が生成される
-docker compose restart go
+cd /home/alma/birds_eye_v3
+git reset --hard <sha>
+BIRDSEYE_IMAGE_TAG=<sha> docker compose -f docker-compose.prod.yml pull go nginx
+BIRDSEYE_IMAGE_TAG=<sha> docker compose -f docker-compose.prod.yml up -d --no-build
+```
+
+### venus の初回セットアップ
+
+```bash
+# 1. GHCR にログイン（uwabami のセットアップで同じアカウントでログイン済みなら不要）
+docker login ghcr.io -u TansanMilMil
+
+# 2. tgz を展開して置いていたディレクトリを git 管理に切り替える
+#    ~/birds_eye_v3/.env はデプロイ済みコミットの記録に使うので、残っていれば中身を確認してから消す
+#    DB は named volume（birds_eye_v3_db-store）なので、ディレクトリ名を変えなければ引き継がれる
+cd /home/alma/birds_eye_v3
+rm -f docker-compose.yml
+git init
+git remote add origin https://github.com/TansanMilMil/birds_eye_v3.git
+git fetch origin main
+git reset --hard origin/main
+
+# 3. timer を登録する（初回のデプロイは timer が行う）
+sudo cp deploy/venus/birds_eye_v3-deploy.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now birds_eye_v3-deploy.timer
 ```
 
 ### スクレイプ手動トリガー
@@ -193,7 +227,6 @@ cd backend
 
 - サーバーはさくらのVPS `venus`。nina-njaa・uwabami・wp-kimagure と同じホストで動いている
 - 本番の環境変数は venus の `~/.env` にまとめてある。SSHログイン時に読み込まれ、`docker compose` はその値を使う。変数を追加・変更するときは venus の `~/.env` を編集する
-- `task deploy` はパッケージを作って scp し、コンテナを起動し直す。イメージは作り直さない
 - nginxのログは `nginx/log/` に出る。secretが一致したCloudFront経由のリクエストは `access.log`、それ以外の直接アクセスは `direct.log`。各行の先頭はリクエストのHost、その次のIPは、secretが一致したときだけ `CloudFront-Viewer-Address` から取った利用者のIP、それ以外は接続元のIP。行末の `rid=` はnginxの `$request_id`（リクエストごとの32桁のID。Slack通知の `request_id` と同じ値）。ローテートは venus の `/etc/logrotate.d/venus-nginx`（`venus-monitoring` で管理）
 - 遮断リスト（JPCERTのIoCなど）は、venus の `~/.env` の `VENUS_NGINX_BLOCKLIST_DIR`（`/home/alma/venus-monitoring/nginx-blocklist`）を `/etc/nginx/blocklist` にマウントして読む。未設定だとリポジトリ内の空のリストが使われ、何も遮断しない
 - 外部から届くのは、さくらのパケットフィルタで許可したポートだけ。Dockerの `ports` はfirewalldを通らないため、新しくポートを公開するときはパケットフィルタの設定も変える

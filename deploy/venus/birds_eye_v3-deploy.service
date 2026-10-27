@@ -1,0 +1,9 @@
+[Unit]
+Description=Deploy birds_eye_v3 from GHCR
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=alma
+ExecStart=/home/alma/birds_eye_v3/deploy/venus/pull-deploy.sh
