@@ -10,7 +10,6 @@ services:
       BIRDSEYE_CLOUDFRONT_SECRET: "${BIRDSEYE_CLOUDFRONT_SECRET:-}"
     volumes:
       - ./nginx/log:/var/log/nginx
-      - ${VENUS_NGINX_BLOCKLIST_DIR:-./nginx/blocklist}:/etc/nginx/blocklist:ro
     restart: unless-stopped
     tty: true
     ports:
